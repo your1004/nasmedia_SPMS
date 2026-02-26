@@ -1,0 +1,2394 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>나스미디어 Revenue Intelligence v6</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+/* ═══ RESET & ROOT ═══════════════════════════════════════════════ */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f1f3f4;--card:#fff;--b:#dadce0;--b2:#e8eaed;
+  --blue:#1a73e8;--blue2:#4285f4;--blue-lt:#e8f0fe;
+  --grn:#1e8e3e;--grn-lt:#e6f4ea;
+  --red:#d93025;--red-lt:#fce8e6;
+  --ylw:#f29900;--ylw-lt:#fef7e0;
+  --pur:#9334e6;--pur-lt:#f3e8fd;
+  --t:#202124;--t2:#5f6368;--t3:#80868b;--t4:#bdc1c6;
+  --hh:56px;--nav:240px;--th:48px;--ph:48px;
+  --r:8px;--r2:12px;--r3:16px;
+  --sh:0 1px 3px rgba(0,0,0,.12);--sh2:0 4px 12px rgba(0,0,0,.1);
+}
+
+/* ═══ LAYOUT ═══════════════════════════════════════════════════ */
+body{background:var(--bg);color:var(--t);font:14px/1.55 'Segoe UI',sans-serif;height:100vh;overflow:hidden}
+.app{display:flex;flex-direction:column;height:100vh}
+
+/* ── TOP HEADER ── */
+.hd{height:var(--hh);background:#fff;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:0;position:sticky;top:0;z-index:100;box-shadow:var(--sh)}
+.hd-logo{width:var(--nav);display:flex;align-items:center;gap:8px;padding:0 16px;border-right:1px solid var(--b);flex-shrink:0}
+.hd-logo-ico{width:28px;height:28px;background:var(--blue);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:700}
+.hd-logo-txt{font-size:15px;font-weight:700;color:var(--t);line-height:1.2}
+.hd-logo-sub{font-size:14px;color:var(--t3)}
+
+/* ── MAIN TABS ── */
+.main-tabs{display:flex;align-items:center;gap:2px;padding:0 16px;border-right:1px solid var(--b)}
+.mtab{padding:6px 18px;border-radius:20px;font-size:15px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--t2);transition:.2s}
+.mtab.on{background:var(--blue);color:#fff}
+.mtab:hover:not(.on){background:var(--blue-lt);color:var(--blue)}
+
+/* ── PERIOD SELECTOR ── */
+.period-bar{display:flex;align-items:center;gap:8px;padding:0 14px;flex:1}
+.period-label{font-size:14px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.5px}
+.period-sel{display:flex;gap:4px}
+.psel{padding:4px 10px;border:1px solid var(--b);border-radius:6px;font-size:15px;font-weight:600;cursor:pointer;background:#fff;color:var(--t2);transition:.15s}
+.psel.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.psel:hover:not(.on){border-color:var(--blue);color:var(--blue)}
+.period-divider{width:1px;height:20px;background:var(--b);margin:0 4px}
+.period-custom{display:flex;align-items:center;gap:6px}
+.period-custom select{padding:4px 8px;border:1px solid var(--b);border-radius:6px;font-size:15px;background:#fff;color:var(--t);cursor:pointer}
+
+/* ── HEADER RIGHT ── */
+.hd-right{display:flex;align-items:center;gap:8px;padding:0 14px;margin-left:auto;flex-shrink:0}
+.hd-btn{padding:5px 10px;border:1px solid var(--b);border-radius:6px;font-size:15px;cursor:pointer;background:#fff;color:var(--t2);transition:.15s}
+.hd-btn:hover{border-color:var(--blue);color:var(--blue)}
+.hd-btn.verify{border-color:var(--grn);color:var(--grn)}
+.user-chip{display:flex;align-items:center;gap:6px;padding:4px 10px;background:var(--bg);border-radius:20px;cursor:pointer}
+.user-chip .ico{width:24px;height:24px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700}
+.user-chip .nm{font-size:15px;font-weight:600;color:var(--t)}
+
+/* ── PERIOD INFO CHIP ── */
+.period-info{background:var(--blue-lt);border:1px solid #c5d9f8;border-radius:6px;padding:3px 10px;font-size:14px;font-weight:700;color:var(--blue);white-space:nowrap}
+
+/* ═══ CONTENT AREA ═══════════════════════════════════════════════ */
+.layout{display:flex;flex:1;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sb{width:var(--nav);background:#fff;border-right:1px solid var(--b);overflow-y:auto;overflow-x:hidden;flex-shrink:0}
+.sb::-webkit-scrollbar{width:4px}
+.sb::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+.sb-section{padding:8px 0 4px}
+.sb-hd{padding:6px 16px 4px;font-size:14px;font-weight:700;color:var(--t3);letter-spacing:.8px;text-transform:uppercase}
+.ni{display:flex;align-items:center;gap:8px;padding:7px 12px 7px 16px;cursor:pointer;border-radius:0;transition:.15s;color:var(--t2);font-size:14px;font-weight:500;position:relative}
+.ni:hover{background:var(--bg);color:var(--t)}
+.ni.on{background:var(--blue-lt);color:var(--blue);font-weight:600}
+.ni.on::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--blue);border-radius:0 2px 2px 0}
+.ni .ico{width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.ni .chev{margin-left:auto;font-size:14px;transition:.2s;color:var(--t4)}
+.ni.open .chev{transform:rotate(90deg)}
+.sub{display:none;background:var(--bg)}
+.sub.open{display:block}
+.sni{display:flex;align-items:center;gap:8px;padding:6px 12px 6px 36px;cursor:pointer;font-size:15px;color:var(--t2);transition:.15s}
+.sni:hover{color:var(--t);background:#edf1fb}
+.sni.on{color:var(--blue);font-weight:600;background:#e8f0fe}
+.sni .dot{width:6px;height:6px;border-radius:50%;background:var(--t4);flex-shrink:0}
+.sni.on .dot{background:var(--blue)}
+.sb-divider{height:1px;background:var(--b2);margin:4px 12px}
+
+/* ═══ MAIN CONTENT ════════════════════════════════════════════════ */
+main{flex:1;overflow-y:auto;overflow-x:hidden;padding:20px}
+main::-webkit-scrollbar{width:6px}
+main::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
+.pg{display:none}
+.pg.on{display:block}
+
+/* ═══ COMPONENTS ══════════════════════════════════════════════════ */
+
+/* PAGE HEADER */
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.ph-l h1{font-size:21px;font-weight:700;color:var(--t);margin-bottom:3px}
+.meta{font-size:15px;color:var(--t3)}
+.vb{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:var(--grn-lt);color:var(--grn);border-radius:10px;font-size:14px;font-weight:600;margin-top:4px}
+.ph-r{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--b);border-radius:var(--r2);padding:16px;box-shadow:var(--sh)}
+.card.mb14{margin-bottom:14px}
+.ct{font-size:15px;font-weight:700;color:var(--t);margin-bottom:4px}
+.cs{font-size:14px;color:var(--t3);margin-bottom:12px}
+
+/* KPI GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}
+.kpi{background:var(--card);border:1px solid var(--b);border-radius:var(--r2);padding:14px;box-shadow:var(--sh)}
+.kl{font-size:14px;color:var(--t3);margin-bottom:4px;font-weight:500}
+.kv{font-size:27px;font-weight:700;color:var(--t);line-height:1.1;display:flex;align-items:baseline;gap:4px}
+.u{font-size:15px;font-weight:500;color:var(--t2)}
+.kd{display:inline-flex;align-items:center;padding:2px 6px;border-radius:8px;font-size:14px;font-weight:600;margin-top:4px}
+.kd.p{background:#e6f4ea;color:var(--grn)}
+.kd.n{background:#fce8e6;color:var(--red)}
+.kd.e{background:#f8f9fa;color:var(--t3)}
+.kd.b{background:var(--blue-lt);color:var(--blue)}
+.kd.w{background:#fef7e0;color:var(--ylw)}
+
+/* TABLES */
+.tw{overflow-x:auto}
+table.t{width:100%;border-collapse:collapse;font-size:15px}
+table.t th{background:#f8f9fa;padding:8px 10px;text-align:left;font-size:14px;font-weight:600;color:var(--t2);border-bottom:2px solid var(--b);white-space:nowrap;position:sticky;top:0}
+table.t td{padding:7px 10px;border-bottom:1px solid var(--b2);vertical-align:middle}
+table.t tr:hover td{background:#f8f9fa}
+table.t .r{text-align:right}
+table.t .c{text-align:center}
+.hl{font-weight:700;color:var(--t)}
+.tp{color:var(--grn);font-weight:600}
+.tn{color:var(--red);font-weight:600}
+.tw2{color:var(--ylw);font-weight:600}
+.tg{color:var(--t3)}
+.tnum{font-family:'JetBrains Mono',monospace;font-size:15px}
+
+/* RANK BADGES */
+.rk{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:14px;font-weight:700;background:var(--bg);color:var(--t2)}
+.rk.g1{background:#fff3c4;color:#b36700}
+.rk.g2{background:#e8e8e8;color:#444}
+.rk.g3{background:#ffe4d0;color:#b35e00}
+
+/* CHIPS */
+.ch{display:inline-flex;align-items:center;padding:2px 7px;border-radius:8px;font-size:14px;font-weight:600;white-space:nowrap}
+.ch.g{background:var(--grn-lt);color:var(--grn)}
+.ch.r{background:var(--red-lt);color:var(--red)}
+.ch.b{background:var(--blue-lt);color:var(--blue)}
+.ch.y{background:var(--ylw-lt);color:#b36700}
+.ch.p{background:var(--pur-lt);color:var(--pur)}
+.ch.gr{background:#f1f3f4;color:var(--t2)}
+
+/* ALERTS */
+.al{padding:10px 14px;border-radius:var(--r);font-size:15px;margin-bottom:12px;line-height:1.6}
+.al.s{background:var(--grn-lt);border-left:3px solid var(--grn);color:#0d652d}
+.al.w{background:var(--ylw-lt);border-left:3px solid var(--ylw);color:#7a4e00}
+.al.e{background:var(--red-lt);border-left:3px solid var(--red);color:#9c1000}
+.al.i{background:var(--blue-lt);border-left:3px solid var(--blue);color:#1558b0}
+
+/* ANALYSIS BOXES */
+.abox{background:var(--bg);border-radius:var(--r);padding:12px 14px;margin-bottom:10px}
+.abox.g{background:var(--grn-lt);border:1px solid #ceead6}
+.abox.r{background:var(--red-lt);border:1px solid #fad2cf}
+.abox.y{background:var(--ylw-lt);border:1px solid #fde293}
+.abox.b{background:var(--blue-lt);border:1px solid #c5d9f8}
+.at{font-size:15px;font-weight:700;margin-bottom:6px}
+.ab{font-size:15px;color:var(--t2);line-height:1.7}
+.ab li{margin-bottom:4px;list-style:none;padding-left:0}
+
+/* BUTTONS */
+.btn{padding:6px 14px;border-radius:var(--r);font-size:15px;font-weight:600;cursor:pointer;border:none;transition:.15s}
+.btn.p{background:var(--blue);color:#fff}
+.btn.p:hover{background:#1557b0}
+.btn.s{background:var(--bg);color:var(--t2);border:1px solid var(--b)}
+.btn.s:hover{border-color:var(--blue);color:var(--blue)}
+.btn.sm{padding:4px 10px;font-size:14px}
+.btn.xs{padding:2px 7px;font-size:14px;border:1px solid var(--b);background:#fff;color:var(--t3);border-radius:4px;cursor:pointer}
+.btn.g{background:var(--grn);color:#fff}
+.btn.r{background:var(--red);color:#fff}
+.sbtn{padding:4px 10px;border:1px solid var(--b);border-radius:6px;font-size:14px;cursor:pointer;background:#fff;color:var(--t2);transition:.15s}
+.sbtn.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.sbtn:hover:not(.on){border-color:var(--blue);color:var(--blue)}
+
+/* FORM */
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:15px;font-weight:600;margin-bottom:5px;color:var(--t2)}
+.url-inp{width:100%;padding:8px 12px;border:1px solid var(--b);border-radius:var(--r);font-size:15px;color:var(--t);outline:none;transition:.15s}
+.url-inp:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,115,232,.12)}
+
+/* UPLOAD ZONE */
+.uz{border:2px dashed var(--b);border-radius:var(--r2);padding:24px;text-align:center;cursor:pointer;transition:.2s;background:var(--bg)}
+.uz:hover{border-color:var(--blue);background:var(--blue-lt)}
+
+/* STRATEGY BOXES */
+.strat{padding:12px 14px;border-radius:var(--r);margin-bottom:8px;border-left:3px solid}
+.strat.g{border-color:var(--grn);background:var(--grn-lt)}
+.strat.y{border-color:var(--ylw);background:var(--ylw-lt)}
+.strat.r{border-color:var(--red);background:var(--red-lt)}
+.strat.b{border-color:var(--blue);background:var(--blue-lt)}
+.st-t{font-size:14px;font-weight:700;margin-bottom:4px}
+.st-d{font-size:15px;color:var(--t2);line-height:1.6}
+
+/* PROGRESS BAR */
+.prog{margin-top:8px}
+.prog-hd{display:flex;justify-content:space-between;font-size:14px;color:var(--t3);margin-bottom:4px}
+.prog-bar{height:8px;background:var(--b2);border-radius:4px;overflow:hidden}
+.prog-fill{height:100%;border-radius:4px;background:var(--blue);transition:width .5s}
+.prog-fill.g{background:var(--grn)}
+.prog-fill.y{background:var(--ylw)}
+.prog-fill.r{background:var(--red)}
+
+/* MEDIA HERO */
+.med-hero{border-radius:var(--r2);padding:18px 20px;display:flex;align-items:center;gap:16px;margin-bottom:14px;color:#fff}
+.med-icon-box{width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:21px;font-weight:700;flex-shrink:0}
+.med-name{font-size:21px;font-weight:700}
+.med-sub{font-size:15px;opacity:.85}
+.med-stat{margin-left:auto;text-align:right}
+.med-stat .big{font-size:31px;font-weight:700}
+.med-stat .sm2{font-size:15px;opacity:.85}
+
+/* TABS (sub-tabs within pages) */
+.tab-bar{display:flex;gap:0;border-bottom:2px solid var(--b);margin-bottom:14px}
+.tab-item{padding:8px 16px;font-size:15px;font-weight:600;cursor:pointer;color:var(--t2);border-bottom:2px solid transparent;margin-bottom:-2px;transition:.15s}
+.tab-item.on{color:var(--blue);border-color:var(--blue)}
+.tab-item:hover:not(.on){color:var(--t)}
+.tab-content{display:none}
+.tab-content.on{display:block}
+
+/* PROMO BOX */
+.promo-box{background:var(--bg);border-radius:var(--r2);padding:14px;border:1px solid var(--b)}
+.promo-hd{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.promo-t{font-size:15px;font-weight:700}
+.promo-period{font-size:14px;color:var(--t3);background:var(--card);padding:2px 8px;border-radius:10px;border:1px solid var(--b)}
+
+/* NET/GROSS TOGGLE */
+.ng-toggle{display:inline-flex;background:var(--bg);border-radius:6px;border:1px solid var(--b);overflow:hidden}
+.ng-btn{padding:4px 10px;font-size:14px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--t2);transition:.15s}
+.ng-btn.on{background:var(--blue);color:#fff}
+
+/* WEEKLY ACTIVITY */
+.week-confirm{background:#e6f4ea;border:1px solid #a8d5b5;border-radius:8px;padding:12px}
+.week-propose{background:#e8f0fe;border:1px solid #c5d9f8;border-radius:8px;padding:12px}
+.wkpi-val{font-size:23px;font-weight:700}
+.wkpi-lbl{font-size:14px;color:var(--t2);margin-top:2px}
+.wkpi-sub{font-size:14px;margin-top:4px}
+
+/* CHAT */
+.chat-area{display:flex;flex-direction:column;height:460px}
+.chat-msgs{flex:1;overflow-y:auto;padding:12px;background:var(--bg);border-radius:var(--r);margin-bottom:10px;display:flex;flex-direction:column;gap:8px}
+.cm{max-width:82%;padding:9px 13px;border-radius:12px;font-size:14px;line-height:1.6;position:relative}
+.cm.u{align-self:flex-end;background:var(--blue);color:#fff;border-radius:12px 12px 2px 12px}
+.cm.b{align-self:flex-start;background:#fff;color:var(--t);border:1px solid var(--b);border-radius:12px 12px 12px 2px}
+.cm-t{font-size:13px;opacity:.6;margin-top:3px;text-align:right}
+.chat-inp{display:flex;gap:8px}
+.chat-inp input{flex:1;padding:10px 14px;border:1px solid var(--b);border-radius:22px;font-size:15px;outline:none;transition:.15s}
+.chat-inp input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,115,232,.1)}
+.chat-inp button{padding:10px 18px;background:var(--blue);color:#fff;border:none;border-radius:22px;font-size:15px;font-weight:600;cursor:pointer}
+
+/* FORECAST BOX */
+.fc-box{background:var(--card);border:1px solid var(--b);border-radius:var(--r2);padding:14px;position:relative}
+.fc-lbl{font-size:14px;color:var(--t3);margin-bottom:4px}
+.fc-val{font-size:21px;font-weight:700;color:var(--blue)}
+.fc-rng{font-size:14px;color:var(--t3);margin-top:2px}
+
+/* OPPORTUNITY TAG */
+.opp-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:#fff3e0;border:1px solid #ffe0b2;border-radius:8px;font-size:14px;color:#e65100;font-weight:600}
+
+/* INLINE BADGE */
+.badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;background:var(--red);color:#fff;border-radius:9px;font-size:14px;font-weight:700}
+
+/* LOGIN */
+.login-wrap{position:fixed;inset:0;background:linear-gradient(135deg,#1557b0 0%,#1a73e8 50%,#4285f4 100%);display:flex;align-items:center;justify-content:center;z-index:9999}
+.login-box{background:#fff;border-radius:20px;padding:40px;width:360px;box-shadow:0 24px 64px rgba(0,0,0,.3)}
+.login-logo{text-align:center;margin-bottom:28px}
+.login-ico{width:54px;height:54px;background:var(--blue);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:27px;font-weight:700;color:#fff}
+.login-title{font-size:21px;font-weight:700;color:var(--t)}
+.login-sub{font-size:15px;color:var(--t3);margin-top:4px}
+.login-field{margin-bottom:14px}
+.login-field label{display:block;font-size:15px;font-weight:600;color:var(--t2);margin-bottom:5px}
+.login-field input{width:100%;padding:10px 14px;border:1.5px solid var(--b);border-radius:var(--r);font-size:15px;outline:none;transition:.15s}
+.login-field input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,115,232,.12)}
+.login-btn{width:100%;padding:12px;background:var(--blue);color:#fff;border:none;border-radius:var(--r);font-size:15px;font-weight:700;cursor:pointer;transition:.2s;margin-top:6px}
+.login-btn:hover{background:#1557b0}
+.login-err{color:var(--red);font-size:15px;margin-top:6px;text-align:center}
+
+/* PERIOD DISPLAY SECTION */
+.period-context{background:var(--blue-lt);border:1px solid #c5d9f8;border-radius:var(--r);padding:8px 14px;margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.pc-label{font-size:14px;font-weight:600;color:var(--blue)}
+.pc-val{font-size:15px;font-weight:700;color:var(--t)}
+.pc-compare{font-size:14px;color:var(--t3)}
+
+/* TOOLTIP */
+[data-tip]{position:relative;cursor:help}
+[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:4px 8px;border-radius:4px;font-size:14px;white-space:nowrap;z-index:100;margin-bottom:4px}
+
+/* MEDIA SETTING PANEL */
+.med-setting{background:var(--bg);border:1px solid var(--b2);border-radius:var(--r);padding:12px 14px;margin-bottom:12px}
+.med-setting-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ms-label{font-size:15px;font-weight:600;color:var(--t2);min-width:100px}
+
+/* SCROLLABLE MINI TABLE */
+.mini-table-wrap{max-height:320px;overflow-y:auto}
+
+/* TEAM PERFORMANCE METRICS */
+.metric-card{background:var(--card);border:1px solid var(--b);border-radius:var(--r);padding:12px;text-align:center}
+.metric-val{font-size:19px;font-weight:700;color:var(--blue)}
+.metric-lbl{font-size:14px;color:var(--t3);margin-top:3px}
+.metric-sub{font-size:14px;color:var(--t2);margin-top:2px}
+
+/* STATUS PILL */
+.status-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:10px;font-size:14px;font-weight:600}
+.status-pill::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+.sp-g{background:var(--grn-lt);color:var(--grn)}
+.sp-r{background:var(--red-lt);color:var(--red)}
+.sp-y{background:var(--ylw-lt);color:#b36700}
+.sp-b{background:var(--blue-lt);color:var(--blue)}
+
+/* OPPORTUNITY ANALYSIS */
+.opp-card{background:linear-gradient(135deg,#fff8e1,#fff3cd);border:1px solid #ffd54f;border-radius:var(--r2);padding:14px;margin-bottom:10px}
+.opp-title{font-size:14px;font-weight:700;color:#5d4037;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.opp-body{font-size:15px;color:#6d4c41;line-height:1.65}
+
+/* RESPONSIVE */
+@media(max-width:768px){.g4{grid-template-columns:repeat(2,1fr)}.g5{grid-template-columns:repeat(2,1fr)}.sb{display:none}}
+
+/* Chat & Hints - missing styles */
+.hints{display:flex;flex-wrap:wrap;gap:6px;padding:12px 16px 4px;border-bottom:1px solid var(--b2);}
+.hc{background:var(--blue-lt);border:1px solid var(--blue);color:var(--blue);border-radius:20px;padding:4px 12px;font-size:14px;cursor:pointer;transition:.15s;}
+.hc:hover{background:var(--blue);color:#fff;}
+.chat-wrap{display:flex;flex-direction:column;flex:1;min-height:0;padding:0 16px 16px;}
+.chat-row{display:flex;gap:8px;margin-top:8px;}
+.chat-row input{flex:1;padding:8px 12px;border:1px solid var(--b);border-radius:8px;font-size:15px;}
+
+/* Chart size constraints */
+/* chart heights managed by wrappers */
+.card canvas { display:block; width:100%; }
+
+/* ── Chart layout ───────────────────────────────────────── */
+.chart-bar-wrap  { position:relative; width:100%; height:160px; }
+.chart-bar-tall  { position:relative; width:100%; height:220px; }
+.chart-pie-wrap  { display:flex; justify-content:center; align-items:center; padding:4px 0; }
+.chart-pie-wrap canvas { max-width:220px !important; max-height:200px !important; }
+.g-chart { display:grid; grid-template-columns:3fr 2fr; gap:12px; margin-bottom:14px; }
+.g-pie2  { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
+
+/* Bonbu table */
+.bonbu-table{width:100%;border-collapse:collapse;font-size:13px}
+.bonbu-table th{padding:8px 10px;background:var(--blue-lt);color:var(--blue);font-weight:700;text-align:center;border-bottom:2px solid var(--blue);white-space:nowrap;font-size:12px}
+.bonbu-table td{padding:8px 10px;border-bottom:1px solid var(--b2);text-align:right;font-size:13px;vertical-align:middle}
+.bonbu-table td.nm{text-align:left;font-weight:700;color:var(--t)}
+.bonbu-table tr:hover{background:var(--blue-lt)}
+.bonbu-table .pm{height:5px;background:var(--b2);border-radius:3px;margin-top:3px;overflow:hidden;min-width:50px}
+.bonbu-table .pmf{height:100%;border-radius:3px;background:var(--blue)}
+/* Analysis box */
+.abox2{border-radius:var(--r);padding:14px 16px;margin-bottom:14px;background:linear-gradient(135deg,#f0f4ff,#e8f0fe);border-left:4px solid #3949ab}
+.abox2.grn{background:linear-gradient(135deg,#f1f8e9,#e8f5e9);border-left-color:#2e7d32}
+.abox2 .ax-title{font-size:13px;font-weight:700;color:#3949ab;margin-bottom:10px}
+.abox2.grn .ax-title{color:#2e7d32}
+.abox2 .ax-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.abox2 .ax-item{background:rgba(255,255,255,.75);border-radius:8px;padding:10px 12px}
+.abox2 .ax-lbl{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.abox2 .ax-txt{font-size:13px;color:var(--t);line-height:1.65}
+.abox2 .ax-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.ax-tag{font-size:11.5px;padding:3px 10px;border-radius:12px;font-weight:600;display:inline-block}
+.ax-tag.ok{background:#e8f5e9;color:#1b5e20}
+.ax-tag.warn{background:#fff3e0;color:#e65100}
+.ax-tag.info{background:#e8eaf6;color:#3949ab}
+</style>
+</head>
+<body>
+
+<!-- ═══ LOGIN ════════════════════════════════════════════════════ -->
+<div class="login-wrap" id="login-wrap">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-ico">N</div>
+      <div class="login-title">나스미디어 RI</div>
+      <div class="login-sub">Revenue Intelligence v6.0</div>
+    </div>
+    <div class="login-field"><label>이메일</label><input type="email" id="li-email" value="admin@nasmedia.co.kr" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="login-field"><label>비밀번호</label><input type="password" id="li-pw" value="admin1234" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="login-btn" onclick="doLogin()">로그인</button>
+    <div class="login-err" id="li-err"></div>
+  </div>
+</div>
+
+<!-- ═══ APP ═══════════════════════════════════════════════════════ -->
+<div class="app" id="app" style="display:none">
+
+  <!-- ── HEADER ── -->
+  <header class="hd">
+    <div class="hd-logo">
+      <div class="hd-logo-ico">N</div>
+      <div><div class="hd-logo-txt">나스미디어 RI</div><div class="hd-logo-sub">Revenue Intelligence</div></div>
+    </div>
+
+    <!-- MAIN TAB TOGGLE -->
+    <div class="main-tabs">
+      <button class="mtab on" id="tab-perf" onclick="switchMainTab('perf',this)">📊 실적</button>
+      <button class="mtab" id="tab-sales" onclick="switchMainTab('sales',this)">🎯 영업활동</button>
+    </div>
+
+    <!-- PERIOD SELECTOR -->
+    <div class="period-bar">
+      <span class="period-label">기간</span>
+      <div class="period-sel" id="year-sel">
+        <button class="psel on" onclick="selectYear(2025,this)">2025</button>
+        <button class="psel" onclick="selectYear(2026,this)">2026</button>
+      </div>
+      <div class="period-divider"></div>
+      <div class="period-sel" id="qtr-sel">
+        <button class="psel" onclick="selectQtr(0,this)">전체</button>
+        <button class="psel" onclick="selectQtr(1,this)">Q1</button>
+        <button class="psel" onclick="selectQtr(2,this)">Q2</button>
+        <button class="psel" onclick="selectQtr(3,this)">Q3</button>
+        <button class="psel on" onclick="selectQtr(4,this)">Q4</button>
+      </div>
+      <div class="period-divider"></div>
+      <div class="period-custom">
+        <select id="month-sel" onchange="selectMonth(this.value)">
+          <option value="0">전체월</option>
+          <option value="1">1월</option><option value="2">2월</option><option value="3">3월</option>
+          <option value="4">4월</option><option value="5">5월</option><option value="6">6월</option>
+          <option value="7">7월</option><option value="8">8월</option><option value="9">9월</option>
+          <option value="10">10월</option><option value="11">11월</option><option value="12" selected>12월</option>
+        </select>
+      </div>
+      <div class="period-info" id="period-info">2025년 12월</div>
+    </div>
+
+    <!-- RIGHT ACTIONS -->
+    <div class="hd-right">
+      <button class="hd-btn verify" onclick="openVerify()">⊕ 데이터 검증</button>
+      <button class="hd-btn" onclick="goto('settings-data',null)">📁 데이터 관리</button>
+      <div class="user-chip" onclick="goto('settings-admin',null)">
+        <div class="ico" id="hd-user-ico">A</div>
+        <span class="nm" id="hd-user-nm">관리자</span>
+      </div>
+      <button class="hd-btn" onclick="doLogout()">로그아웃</button>
+    </div>
+  </header>
+
+  <!-- ── CONTENT AREA ── -->
+  <div class="layout">
+
+    <!-- ── SIDEBAR ── -->
+    <nav class="sb" id="sidebar">
+
+      <!-- ■ 실적 탭 사이드바 -->
+      <div id="sb-perf" class="sb-tab-section">
+        <div class="sb-section">
+          <div class="sb-hd">실적 개요</div>
+          <div class="ni on" id="ni-summary" onclick="goto('summary',this)"><div class="ico">📊</div>Executive Summary</div>
+          <div class="ni" onclick="goto('kpi',this)"><div class="ico">🎯</div>핵심 KPI</div>
+          <div class="ni" onclick="goto('monthly',this)"><div class="ico">📅</div>월별 추이</div>
+        </div>
+
+        <div class="sb-section">
+          <div class="sb-hd">부서별 실적</div>
+          <div class="ni" onclick="goto('org-ov',this)"><div class="ico">🏢</div>전사 요약</div>
+          <div class="ni" onclick="toggleSub('sub-org',this)"><div class="ico">👥</div>본부별 분석<span class="chev">›</span></div>
+          <div class="sub" id="sub-org">
+            <div class="sni" onclick="goto('org-1',this)"><div class="dot"></div>광고1본부</div>
+            <div class="sni" onclick="goto('org-2',this)"><div class="dot"></div>광고2본부</div>
+            <div class="sni" onclick="goto('org-3',this)"><div class="dot"></div>광고3본부</div>
+            <div class="sni" onclick="goto('org-m',this)"><div class="dot"></div>미디어본부</div>
+            <div class="sni" onclick="goto('org-p',this)"><div class="dot"></div>플랫폼사업본부</div>
+          </div>
+        </div>
+
+        <div class="sb-section">
+          <div class="sb-hd">매체별 실적</div>
+          <div class="ni" onclick="goto('med-ov',this)"><div class="ico">📡</div>전체 매체 현황</div>
+          <div class="ni" onclick="toggleSub('sub-dig',this)"><div class="ico">💻</div>디지털 매체<span class="chev">›</span></div>
+          <div class="sub" id="sub-dig">
+            <div class="sni" onclick="goto('med-google-yt',this)"><div class="dot"></div>Google/YouTube 통합</div>
+            <div class="sni" onclick="goto('med-Naver',this)"><div class="dot"></div>Naver</div>
+            <div class="sni" onclick="goto('med-Facebook',this)"><div class="dot"></div>Meta</div>
+            <div class="sni" onclick="goto('med-kakao',this)"><div class="dot"></div>Kakao</div>
+            <div class="sni" onclick="goto('med-tiktok',this)"><div class="dot"></div>TikTok</div>
+            <div class="sni" onclick="goto('med-moloco',this)"><div class="dot"></div>Moloco</div>
+            <div class="sni" onclick="goto('med-appier',this)"><div class="dot"></div>Appier</div>
+            <div class="sni" onclick="goto('med-Criteo',this)"><div class="dot"></div>Criteo</div>
+            <div class="sni" onclick="goto('med-apple',this)"><div class="dot"></div>Apple SA</div>
+            <div class="sni" onclick="goto('med-etc-dig',this)"><div class="dot"></div>기타 디지털</div>
+          </div>
+          <div class="ni" onclick="toggleSub('sub-ott',this)"><div class="ico">📺</div>방송/영상 매체<span class="chev">›</span></div>
+          <div class="sub" id="sub-ott">
+            <div class="sni" onclick="goto('med-Netflix',this)"><div class="dot"></div>Netflix</div>
+            <div class="sni" onclick="goto('med-tving',this)"><div class="dot"></div>Tving</div>
+            <div class="sni" onclick="goto('med-SMR',this)"><div class="dot"></div>SMR</div>
+            <div class="sni" onclick="goto('med-coupang',this)"><div class="dot"></div>CoupangPlay</div>
+          </div>
+          <div class="ni" onclick="toggleSub('sub-ooh',this)"><div class="ico">🚇</div>옥외 매체<span class="chev">›</span></div>
+          <div class="sub" id="sub-ooh">
+            <div class="sni" onclick="goto('med-subway',this)"><div class="dot"></div>지하철 DOOH</div>
+            <div class="sni" onclick="goto('med-nsquare',this)"><div class="dot"></div>엔스퀘어</div>
+          </div>
+          <div class="ni" onclick="toggleSub('sub-nap',this)"><div class="ico">🏠</div>자사 매체<span class="chev">›</span></div>
+          <div class="sub" id="sub-nap">
+            <div class="sni" onclick="goto('med-nap-dig',this)"><div class="dot"></div>NAP Digital</div>
+            <div class="sni" onclick="goto('med-nap-out',this)"><div class="dot"></div>NAP 옥외</div>
+          </div>
+        </div>
+
+        <div class="sb-section">
+          <div class="sb-hd">심화 분석</div>
+          <div class="ni" onclick="goto('adv',this)"><div class="ico">🏷</div>광고주 분석</div>
+          <div class="ni" onclick="goto('agency',this)"><div class="ico">🏛</div>대행사 분석</div>
+          <div class="ni" onclick="goto('industry',this)"><div class="ico">🗂</div>업종 분석</div>
+        </div>
+      </div>
+
+      <!-- ■ 영업활동 탭 사이드바 -->
+      <div id="sb-sales" class="sb-tab-section" style="display:none">
+        <div class="sb-section">
+          <div class="sb-hd">전사 영업현황</div>
+          <div class="ni on" id="ni-sales-ov" onclick="goto('sales-ov',this)"><div class="ico">📊</div>전사 주간 현황</div>
+          <div class="ni" onclick="goto('sales-forecast',this)"><div class="ico">🔮</div>예측 & 달성전략</div>
+        </div>
+        <div class="sb-section">
+          <div class="sb-hd">부서별 영업</div>
+          <div class="ni" onclick="toggleSub('sub-sales-org',this)"><div class="ico">👥</div>본부/실/팀별<span class="chev">›</span></div>
+          <div class="sub" id="sub-sales-org">
+            <div class="sni" onclick="goto('sales-org-1',this)"><div class="dot"></div>광고1본부</div>
+            <div class="sni" onclick="goto('sales-org-2',this)"><div class="dot"></div>광고2본부</div>
+            <div class="sni" onclick="goto('sales-org-3',this)"><div class="dot"></div>광고3본부</div>
+            <div class="sni" onclick="goto('sales-org-m',this)"><div class="dot"></div>미디어/플랫폼</div>
+          </div>
+        </div>
+        <div class="sb-section">
+          <div class="sb-hd">자사매체 영업</div>
+          <div class="ni" onclick="goto('sales-nap',this)"><div class="ico">🏠</div>NAP 플랫폼</div>
+          <div class="ni" onclick="goto('sales-ooh',this)"><div class="ico">🚇</div>지하철·엔스퀘어</div>
+        </div>
+        <div class="sb-section">
+          <div class="sb-hd">매체별 영업</div>
+          <div class="ni" onclick="goto('sales-media',this);toggleSub('sub-sales-media-detail',this)"><div class="ico">📡</div>주요 매체 영업현황<span class="chev">›</span></div>
+          <div class="sub" id="sub-sales-media-detail">
+            <!-- Dynamically populated by setupSalesMediaSidebar() -->
+          </div>
+        </div>
+        <div class="sb-section">
+          <div class="sb-hd">분석</div>
+          <div class="ni" onclick="goto('sales-weekly',this)"><div class="ico">📋</div>주간회의록 분석</div>
+          <div class="ni" onclick="goto('sales-adv',this)"><div class="ico">🏷</div>광고주별 영업현황</div>
+          <div class="ni" onclick="goto('sales-agency',this)"><div class="ico">🏛</div>대행사별 영업현황</div>
+        </div>
+        <div class="sb-section">
+          <div class="sb-hd">AI 채팅</div>
+          <div class="ni" onclick="goto('chat',this)"><div class="ico">🤖</div>AI 분석 채팅</div>
+        </div>
+      </div>
+
+      <!-- ■ 공통 (데이터 관리/설정) -->
+      <div class="sb-section">
+        <div class="sb-divider"></div>
+        <div class="ni" onclick="goto('settings-data',this)"><div class="ico">📁</div>데이터 관리</div>
+        <div class="ni" onclick="goto('settings-admin',this)"><div class="ico">⚙️</div>관리자 설정</div>
+      </div>
+
+    </nav>
+
+    <!-- ── MAIN CONTENT ── -->
+    <main id="main-area">
+<div class="pg on" id="pg-summary">
+  <div class="ph">
+    <div class="ph-l"><h1>Executive Summary</h1><div class="meta">2025년 12월 · Gross 취급고 · 대행사월 기준</div><div class="vb">✓ 공식 요약 시트 검증 · 134,037,749,830원</div></div>
+  </div>
+  <div class="al w" style="margin-bottom:14px;">⚠ <strong>데이터 교정:</strong> 12월 공식 취급고는 <strong>1,340.4억</strong>입니다. 이전 1,450억은 raw data 중복 집계 오류로 전면 수정되었습니다.</div>
+  <div class="g4">
+    <div class="kpi" style="border-top:3px solid var(--blue)"><div class="kl">12월 총 취급고</div><div class="kv" style="color:var(--blue)">1,340.4<span class="u">억</span></div><span class="kd p">▲ +64.5% MoM</span><div class="ks">YoY +30.2% · 역대 월간 최고</div></div>
+    <div class="kpi" style="border-top:3px solid var(--grn)"><div class="kl">2025 연간 취급고</div><div class="kv" style="color:var(--grn)">8,929.7<span class="u">억</span></div><span class="kd p">▲ +3.2% YoY</span><div class="ks">2024년 8,654.1억 대비 +275.6억</div></div>
+    <div class="kpi" style="border-top:3px solid var(--ylw)"><div class="kl">넥슨 집중도</div><div class="kv" style="color:var(--ylw)">28.7<span class="u">%</span></div><span class="kd w">⚠ 리스크 HIGH</span><div class="ks">넥슨 단독 385.4억 · 캠페인 종료 리스크</div></div>
+    <div class="kpi" style="border-top:3px solid var(--red)"><div class="kl">1월 목표 (기본)</div><div class="kv" style="color:var(--red)">700<span class="u">억</span></div><span class="kd n">▼ -47.8% 예상</span><div class="ks">넥슨 종료 + 신년 예산 지연 패턴</div></div>
+  </div>
+  <div class="abox"><div class="at">🔍 12월 핵심 인사이트</div><div class="ab"><ul>
+    <li><strong>넥슨 게임 글로벌 캠페인</strong>이 12월 급등 주인. 광고1본부 4실-12팀(임배현팀) 337.2억이 전체의 25.2%를 단독 견인. 넥슨 제외 시 실질 MoM은 약 +17% 수준.</li>
+    <li><strong>퍼포먼스 매체 폭발:</strong> Google +104% MoM(430.9억), TikTok +574% MoM(35.6억), Moloco +367% MoM(37.3억). 게임 광고의 퍼포먼스 매체 집중 확인.</li>
+    <li><strong>구조적 위험:</strong> 미디어본부 -11.1% MoM, 플랫폼사업본부 -5.3% MoM. Innocean -47.2% YoY (기아차·식음료 부진). 1월 집중 관리 필요.</li>
+    <li><strong>1월 핵심 영업 포인트:</strong> 설 연휴(1/29) 이커머스·금융 선행 캠페인 + 넥슨 Q1 연장 협의 + Google Q1 인센티브 활용.</li>
+  </ul></div></div>
+  <div class="g21">
+    <div class="card mb14"><div class="ct">월별 총 취급고</div><div class="cs">2025년 1~12월 · 억원 / MoM%</div><canvas id="c-sum-monthly"></canvas></div>
+    <div class="card mb14"><div class="ct">12월 본부별 비중</div><div class="cs">Gross 취급고 기준</div><canvas id="c-sum-bonbu" height="80"></canvas></div>
+  </div>
+  <div class="card mb14"><div class="ct">본부별 실적 요약</div><div class="cs">11월→12월 MoM · 전사 비중</div>
+    <div class="tw"><table class="t"><thead><tr><th>본부</th><th class="r">11월</th><th class="r">12월</th><th class="r">MoM</th><th class="r">비중</th><th class="r">YoY</th><th>분석 코멘트</th></tr></thead><tbody id="tb-sum-bonbu"></tbody></table></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     KPI PAGE
+══════════════════════════════════════════════ -->
+<div class="pg" id="pg-kpi">
+  <div class="ph"><div class="ph-l"><h1>핵심 KPI 대시보드</h1><div class="meta">전사 성과 지표 · 취급고·광고주·집중도 분석</div><div class="vb">✓ 검증완료</div></div></div>
+  <div class="g4">
+    <div class="kpi"><div class="kl">총 취급고 (12월)</div><div class="kv">1,340.4<span class="u">억</span></div><span class="kd p">+64.5% MoM</span><div class="ks">YoY +30.2%</div></div>
+    <div class="kpi"><div class="kl">집행 광고주 수</div><div class="kv">1,438<span class="u">개사</span></div><span class="kd p">+88 MoM추정</span><div class="ks">11월 약 1,350개사 추정</div></div>
+    <div class="kpi"><div class="kl">광고주당 평균취급고</div><div class="kv">9,320<span class="u">만원</span></div><span class="kd p">+54.1% MoM</span><div class="ks">넥슨제외 약 6,640만원</div></div>
+    <div class="kpi"><div class="kl">Top10 광고주 비중</div><div class="kv">58.4<span class="u">%</span></div><span class="kd w">집중 리스크</span><div class="ks">넥슨 단독 28.7%</div></div>
+  </div>
+  <div class="abox"><div class="at">📊 KPI 분석 — 핵심 관찰 포인트</div><div class="ab"><ul>
+    <li><strong>광고주당 평균 취급고 +54.1%</strong>는 광고주 수 증가보다 단가 상승이 주도. 넥슨 제외 시 약 +7~8%로 실질 단가는 견조한 성장.</li>
+    <li><strong>Top10 집중도 58.4%</strong>는 넥슨 효과로 일시 왜곡. 넥슨 제외 Top10은 41.3%로 정상 범위. 연간 기준 약 35~40% 수준 유지.</li>
+    <li><strong>YoY +30.2%는 계절성+넥슨 복합:</strong> 순수 계절성 효과는 +12~18% 추정. 2024년 12월 대비 넥슨 증가분 약 230억.</li>
+    <li><strong>집행 광고주 수 감소 리스크:</strong> 넥슨 종료 시 집중도는 낮아지나 단가도 급락. 1월 신규 광고주 선행 영업이 핵심 KPI.</li>
+  </ul></div></div>
+  <div class="g2">
+    <div class="card mb14"><div class="ct">MoM 성장률 추이</div><div class="cs">전월 대비 (%)</div><canvas id="c-kpi-mom" height="75"></canvas></div>
+    <div class="card mb14"><div class="ct">YoY 성장률 추이</div><div class="cs">전년 동월 대비 (%)</div><canvas id="c-kpi-yoy" height="75"></canvas></div>
+  </div>
+  <div class="card mb14"><div class="ct">Top20 광고주 — 80% 파레토 분석</div><div class="cs">누적 80% 기준선 표시</div>
+    <div class="tw"><table class="t"><thead><tr><th>#</th><th>광고주</th><th class="r">12월 취급고</th><th class="r">전년동월</th><th class="r">YoY</th><th class="r">비중</th><th class="r">누적비중</th></tr></thead><tbody id="tb-kpi-pareto"></tbody></table></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     MONTHLY PAGE
+══════════════════════════════════════════════ -->
+<div class="pg" id="pg-monthly">
+  <div class="ph"><div class="ph-l"><h1>월별 취급고 추이</h1><div class="meta">2025년 1~12월 · 전사 합계 · YoY 비교</div><div class="vb">✓ 공식 요약시트 검증</div></div></div>
+  <div class="card mb14"><div class="ct">2025년 월별 취급고 (실적 vs 전년)</div><canvas id="c-monthly-main"></canvas></div>
+  <div class="abox"><div class="at">📅 월별 패턴 분석</div><div class="ab"><ul>
+    <li><strong>하반기 > 상반기:</strong> 상반기 평균 659.4억 vs 하반기 평균 820.9억. 10월 이후 성수기 반복 패턴.</li>
+    <li><strong>1~2월 저조 패턴:</strong> 신년 예산 집행 지연. 2026년 1월도 640~700억 예상.</li>
+    <li><strong>12월 역대 최고 1,340.4억:</strong> 전년 12월(1,029.5억) 대비 +30.2%. 계절성+넥슨 복합.</li>
+    <li><strong>4월 기저효과:</strong> 2024년 4월이 높아 2025년 4월 YoY 부진(-6.5%). 실질 수요는 견조.</li>
+  </ul></div></div>
+  <div class="card mb14">
+    <div class="sb-bar"><span class="lb">정렬:</span>
+      <button class="sbtn on" id="sb-m-idx" onclick="sortMonthly('idx',this)">월순</button>
+      <button class="sbtn" onclick="sortMonthly('dec',this)">높은순</button>
+      <button class="sbtn" onclick="sortMonthly('asc',this)">낮은순</button>
+      <button class="sbtn" onclick="sortMonthly('yoy',this)">YoY순</button>
+    </div>
+    <div class="tw"><table class="t"><thead><tr><th>월</th><th class="r">취급고(억)</th><th class="r">MoM</th><th class="r">전년동월</th><th class="r">YoY</th><th class="r">연간비중</th><th>분석 메모</th></tr></thead><tbody id="tb-monthly"></tbody></table></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     ORG OVERVIEW PAGE
+══════════════════════════════════════════════ -->
+<div class="pg" id="pg-org-ov">
+  <div class="ph"><div class="ph-l"><h1>전사 부서별 현황</h1><div class="meta">본부→실→팀 드릴다운 · 정렬 가능</div><div class="vb">✓ 검증완료</div></div></div>
+  <div class="abox"><div class="at">🏢 부서 분석 코멘트</div><div class="ab"><ul>
+    <li><strong>광고1본부 독주 803.8억(60%):</strong> 4실-12팀(임배현) 337.2억이 핵심. 넥슨 종료 시 1월 400~450억 급락 예상. 1실~3실 견조한 성장세.</li>
+    <li><strong>광고2·3본부 안정:</strong> 2본부 +31.9% MoM(293.5억), 3본부 +28.3%(198.8억). 모바일마케팅2팀(윤기숙) +168.5% MoM.</li>
+    <li><strong>미디어본부 -11.1% MoM:</strong> MIC 마케팅플랫폼팀(김선일) -69.6% 급락. 구조적 대응 필요.</li>
+    <li><strong>플랫폼사업본부 -5.3% MoM:</strong> NAP REWARD팀 -38.4%. NAP DSP팀 +54.1%로 일부 상쇄.</li>
+  </ul></div></div>
+  <div class="g21">
+    <div class="card mb14"><div class="ct">본부별 월별 추이</div><div class="cs">2025년 1~12월 · 억원</div><canvas id="c-org-trend" height="80"></canvas></div>
+    <div class="card mb14"><div class="ct">12월 본부별 비중</div><canvas id="c-org-pie" height="80"></canvas></div>
+  </div>
+  <div class="card mb14">
+    <div class="sb-bar"><span class="lb">정렬:</span>
+      <button class="sbtn on" onclick="sortOrgAll('path',this)">팀명순</button>
+      <button class="sbtn" onclick="sortOrgAll('dec',this)">12월순</button>
+      <button class="sbtn" onclick="sortOrgAll('mom',this)">MoM순</button>
+      <button class="sbtn" onclick="sortOrgAll('ann',this)">연간순</button>
+    </div>
+    <div class="tw"><table class="t"><thead><tr><th>본부</th><th>실</th><th>팀명</th><th>팀장</th>
+    <th class="r">10월</th><th class="r">11월</th><th class="r">12월</th><th class="r">MoM</th><th class="r">연간합계</th></tr></thead><tbody id="tb-org-all"></tbody></table></div>
+  </div>
+</div>
+
+<!-- ORG DETAIL PAGES (generated by JS) -->
+<div class="pg" id="pg-org-1"><div id="od-1"></div></div>
+<div class="pg" id="pg-org-2"><div id="od-2"></div></div>
+<div class="pg" id="pg-org-3"><div id="od-3"></div></div>
+<div class="pg" id="pg-org-m"><div id="od-m"></div></div>
+<div class="pg" id="pg-org-p"><div id="od-p"></div></div>
+
+<!-- MEDIA PAGES (generated by JS) -->
+<div class="pg" id="pg-med-Google"><div id="mp-Google"></div></div>
+<div class="pg" id="pg-med-youtube"><div id="mp-youtube"></div></div>
+<div class="pg" id="pg-med-Naver"><div id="mp-Naver"></div></div>
+<div class="pg" id="pg-med-Facebook"><div id="mp-Facebook"></div></div>
+<div class="pg" id="pg-med-kakao"><div id="mp-kakao"></div></div>
+<div class="pg" id="pg-med-tiktok"><div id="mp-tiktok"></div></div>
+<div class="pg" id="pg-med-x"><div id="mp-x"></div></div>
+<div class="pg" id="pg-med-Netflix"><div id="mp-Netflix"></div></div>
+<div class="pg" id="pg-med-moloco"><div id="mp-moloco"></div></div>
+<div class="pg" id="pg-med-tving"><div id="mp-tving"></div></div>
+<div class="pg" id="pg-med-SMR"><div id="mp-SMR"></div></div>
+<div class="pg" id="pg-med-Criteo"><div id="mp-Criteo"></div></div>
+<div class="pg" id="pg-med-appier"><div id="mp-appier"></div></div>
+<div class="pg" id="pg-med-coupang"><div id="mp-coupang"></div></div>
+<div class="pg" id="pg-med-apple"><div id="mp-apple"></div></div>
+<div class="pg" id="pg-med-NAP"><div id="mp-NAP"></div></div>
+
+<!-- ══════════════════════════════════════════════
+     ADVERTISER PAGE
+══════════════════════════════════════════════ -->
+<div class="pg" id="pg-adv">
+  <div class="ph"><div class="ph-l"><h1>광고주 분석</h1><div class="meta">매출 80% 기여 광고주 전체 · YoY 포함</div></div></div>
+  <div class="abox"><div class="at">👥 광고주 분석 코멘트</div><div class="ab"><ul>
+    <li><strong>넥슨 단독 28.7% 집중:</strong> 385.4억(YoY +150.3%). 2위 LG전자(58.5억) 대비 6.6배. 1월 캠페인 종료 시 250~300억 즉시 감소.</li>
+    <li><strong>신규 주목:</strong> 더블유컨셉(11.9억·신규), 넷플릭스(13.8억, YoY +3519%). LG전자 글로벌 +272.2% YoY.</li>
+    <li><strong>이탈 주의:</strong> 월트디즈니 -73.0%, ELEMENTARY -25.3%, 쿠팡 -13.5%. 수송·식음료 전반 부진.</li>
+    <li><strong>업종 집중 리스크:</strong> 게임(넥슨+넷마블) 합산 404.3억으로 전체의 30.2%. 비게임 다변화 시급.</li>
+  </ul></div></div>
+  <div class="card mb14">
+    <div class="sb-bar"><span class="lb">정렬:</span>
+      <button class="sbtn on" onclick="sortAdv('dec',this)">취급고순</button>
+      <button class="sbtn" onclick="sortAdv('yoy',this)">YoY순</button>
+      <button class="sbtn" onclick="sortAdv('rank',this)">순위순</button>
+    </div>
+    <div class="tw"><table class="t"><thead><tr><th>#</th><th>광고주</th><th class="r">12월</th><th class="r">전년동월</th><th class="r">YoY</th><th class="r">비중</th><th class="r">누적비중</th><th>상태</th></tr></thead><tbody id="tb-adv"></tbody></table></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     AGENCY PAGE
+══════════════════════════════════════════════ -->
+<div class="pg" id="pg-agency">
+  <div class="ph"><div class="ph-l"><h1>대행사 분석</h1><div class="meta">매출 80% 기여 대행사 · 광고주 보유현황 · YoY</div></div></div>
+  <div class="abox"><div class="at">🏛 대행사 분석 코멘트</div><div class="ab"><ul>
+    <li><strong>kpf 1위 211.4억(+50.6% YoY):</strong> 공공기관 집중(문화부·중기은행·국민연금). 연말 예산소진형. 1월 급감 예상.</li>
+    <li><strong>TBWA +72.0% YoY:</strong> 넥슨 캠페인 집중. 물량의 40~50%가 넥슨 추정. 1월 넥슨 종료 시 급락 불가피.</li>
+    <li><strong>Innocean -47.2% YoY:</strong> 기아차 감소 + 동원에프앤비 이탈. 수송·식음료 전반 부진. 신규 광고주 발굴 시급.</li>
+    <li><strong>신규 대행사:</strong> (주)와이위·프리엠컴퍼니는 2024년 0원→2025년 12월 각각 9.98억·9.09억. 신규 영업처 개발 효과.</li>
+  </ul></div></div>
+  <div class="card mb14">
+    <div class="sb-bar"><span class="lb">정렬:</span>
+      <button class="sbtn on" onclick="sortAg('dec',this)">취급고순</button>
+      <button class="sbtn" onclick="sortAg('yoy',this)">YoY순</button>
+    </div>
+    <div class="tw"><table class="t"><thead><tr><th>#</th><th>대행사</th><th>유형</th><th class="r">12월</th><th class="r">전년동월</th><th class="r">YoY</th><th class="r">비중</th><th>주요 광고주</th><th>분석</th></tr></thead><tbody id="tb-agency"></tbody></table></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     INDUSTRY PAGE
+══════════════════════════════════════════════ -->
+<div class="pg" id="pg-industry">
+  <div class="ph"><div class="ph-l"><h1>업종별 분석</h1><div class="meta">12월 기준 · 18개 업종 · YoY 비교</div></div></div>
+  <div class="g21">
+    <div class="card mb14"><div class="ct">업종별 취급고 & YoY</div><canvas id="c-industry" height="90"></canvas></div>
+    <div class="card mb14"><div class="ct">업종 분석</div>
+      <div id="industry-comments" style="font-size:14px;line-height:2;color:var(--t2);"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     FORECAST PAGES
+══════════════════════════════════════════════ -->
+<div class="pg" id="pg-fc-ov">
+  <div class="ph"><div class="ph-l"><h1>2026년 1월 전사 예측</h1><div class="meta">3개 시나리오 · 달성 확률 · 리스크 요인 분석</div></div></div>
+  <div class="g3">
+    <div class="kpi" style="border-top:3px solid var(--grn)"><div class="kl">낙관 시나리오</div><div class="kv" style="color:var(--grn)">830<span class="u">억</span></div><span class="kd e">달성확률 20%</span><div class="ks">넥슨 연장 + 설 시즌 선점</div></div>
+    <div class="kpi" style="border-top:3px solid var(--ylw)"><div class="kl">기본 시나리오</div><div class="kv" style="color:var(--ylw)">700<span class="u">억</span></div><span class="kd w">달성확률 60%</span><div class="ks">680~720억 목표 범위</div></div>
+    <div class="kpi" style="border-top:3px solid var(--red)"><div class="kl">보수 시나리오</div><div class="kv" style="color:var(--red)">640<span class="u">억</span></div><span class="kd p">달성확률 80%</span><div class="ks">넥슨 종료 + 신년 지연</div></div>
+  </div>
+  <div class="abox"><div class="at">🎯 1월 예측 근거</div><div class="ab"><ul>
+    <li><strong>계절성:</strong> 2024년 12→1월 -49.5% 패턴 적용 시 676억. 2023년 -47.1% 적용 시 709억.</li>
+    <li><strong>넥슨 리스크:</strong> 0% 유지 시 954억 기준 -47% = 500억. 30% 유지 시 약 616억. 50% 유지 시 약 670억.</li>
+    <li><strong>설 연휴(1/29):</strong> 이커머스·금융·식음료 선행 캠페인 +30~50억 효과 기대.</li>
+    <li><strong>영업 포인트:</strong> LG전자 회복(현재 -23.4% YoY), 넷플릭스 연속 집행 협의, Google Q1 인센티브 활용.</li>
+  </ul></div></div>
+  <div class="card mb14"><div class="ct">12개월 실적 + 1월 예측 시나리오</div><canvas id="c-fc-main" height="80"></canvas></div>
+</div>
+
+<!-- FC DETAIL PAGES -->
+<div class="pg" id="pg-fc-1"><div id="fcd-1"></div></div>
+<div class="pg" id="pg-fc-2"><div id="fcd-2"></div></div>
+<div class="pg" id="pg-fc-3"><div id="fcd-3"></div></div>
+<div class="pg" id="pg-fc-mp"><div id="fcd-mp"></div></div>
+
+<!-- ══════════════════════════════════════════════
+     WEEKLY SALES PAGE
+══════════════════════════════════════════════ -->
+<div class="pg" id="pg-weekly">
+  <div class="ph"><div class="ph-l"><h1>주간 영업 현황</h1><div class="meta">확정 · 제안 구분 · 팀별 파이프라인 분석</div></div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn" onclick="goto('sales-upload',null)">📤 영업데이터 업로드</button>
+      <button class="btn p" onclick="refreshWeekly()">🔄 새로고침</button>
+    </div>
+  </div>
+  <div class="al i">📋 <strong>2026년 2월 3주차 (2/17~2/21)</strong> 기준 · 영업데이터 업로드 메뉴에서 최신 데이터 업로드 후 자동 반영</div>
+  <div class="g4">
+    <div class="ws-box"><div class="kl">이번주 확정</div><div class="wt" style="color:var(--grn)" id="w-confirmed">48.2억</div><div class="ws" id="w-c-cnt">18건 · 전주 +12.3%</div></div>
+    <div class="ws-box"><div class="kl">이번주 제안</div><div class="wt" style="color:var(--blue)" id="w-proposed">124.6억</div><div class="ws" id="w-p-cnt">67건 · 전환율 38.7%</div></div>
+    <div class="ws-box"><div class="kl">1월 누적 확정</div><div class="wt" id="w-monthly">236.4억</div><div class="ws">목표 700억 대비 <strong>33.8%</strong></div></div>
+    <div class="ws-box"><div class="kl">파이프라인 예상</div><div class="wt" style="color:var(--ylw)">463.8억</div><div class="ws">전환율 35% 적용 시 162억 추가 예상</div></div>
+  </div>
+  <div class="card mb14">
+    <div class="ct" style="margin-bottom:10px;">월간 목표 달성 현황</div>
+    <div class="prog"><div class="ph2"><span>확정 (236.4억)</span><span>목표 700억</span></div><div class="pb"><div class="pf" style="width:33.8%;background:var(--grn)"></div></div></div>
+    <div class="prog"><div class="ph2"><span>확정+제안전환예상 (398.4억)</span><span></span></div><div class="pb"><div class="pf" style="width:56.9%;background:var(--blue)"></div></div></div>
+    <div class="abox" style="margin-top:10px;margin-bottom:0"><div class="at">⚡ 파이프라인 건전성 평가</div><div class="ab">현재 확정 33.8% 달성은 <strong class="tw2">주의</strong> 수준. 목표 대비 463.6억 부족. 제안→확정 전환율 38.7%는 양호하나, 신규 제안 발굴이 시급합니다. 이번주 집중 영업 포인트: 설 시즌 캠페인 선확정 + Google Q1 인센티브 패키지 제안.</div></div>
+  </div>
+  <div class="card mb14">
+    <div class="ct">본부별 주간 확정/제안 현황</div>
+    <div class="sb-bar" style="margin-top:10px;"><span class="lb">보기:</span>
+      <button class="sbtn on" onclick="switchWView('week',this)">이번주</button>
+      <button class="sbtn" onclick="switchWView('month',this)">월간누적</button>
+    </div>
+    <div class="tw"><table class="t"><thead><tr><th>본부</th><th class="r">확정</th><th class="r">제안</th><th class="r">전환율</th><th class="r">목표대비</th><th>파이프라인 상태</th></tr></thead><tbody id="tb-weekly-bonbu"></tbody></table></div>
+  </div>
+  <div class="card mb14">
+    <div class="ct">최근 4주 트렌드</div>
+    <canvas id="c-weekly-trend" height="75"></canvas>
+  </div>
+  <div class="tabs" id="weekly-tabs" style="margin-top:14px;">
+    <div class="tab on" onclick="switchTab('wt-detail','weekly-tabs',this)">팀별 상세</div>
+    <div class="tab" onclick="switchTab('wt-history','weekly-tabs',this)">업로드 이력</div>
+  </div>
+  <div class="tc on" id="wt-detail">
+    <div class="tw"><table class="t"><thead><tr><th>본부</th><th>팀</th><th class="r">확정</th><th class="r">제안</th><th class="r">전환율</th><th class="r">목표대비</th><th>주요 광고주</th></tr></thead><tbody id="tb-weekly-team"></tbody></table></div>
+  </div>
+  <div class="tc" id="wt-history">
+    <div class="tw"><table class="t"><thead><tr><th>업로드일시</th><th>주차</th><th>파일명</th><th>확정건수</th><th>제안건수</th><th>업로드자</th><th>상태</th></tr></thead>
+    <tbody><tr><td>2026-02-21 11:43</td><td>2월 3주차</td><td>weekly_sales_0221.xlsx</td><td class="r">18건</td><td class="r">67건</td><td>관리자</td><td><span class="ch g">적용중</span></td></tr>
+    <tr><td>2026-02-14 11:52</td><td>2월 2주차</td><td>weekly_sales_0214.xlsx</td><td class="r">16건</td><td class="r">59건</td><td>관리자</td><td><span class="ch gr">이력</span></td></tr>
+    <tr><td>2026-02-07 11:38</td><td>2월 1주차</td><td>weekly_sales_0207.csv</td><td class="r">21건</td><td class="r">72건</td><td>관리자</td><td><span class="ch gr">이력</span></td></tr></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SALES UPLOAD PAGE (주간 영업 업로드)
+══════════════════════════════════════════════ -->
+<div class="pg" id="pg-sales-upload">
+  <div class="ph"><div class="ph-l"><h1>영업 데이터 업로드</h1><div class="meta">주간 영업실적 · 확정/제안 구분 업로드</div></div></div>
+  <div class="al i" style="margin-bottom:18px;">📌 매주 화요일 주간회의 전(오전 11시까지) 영업 데이터를 업로드합니다. <strong>확정</strong>은 계약 완료된 캠페인, <strong>제안</strong>은 견적/협의 중인 캠페인입니다.</div>
+  
+  <div class="tabs" id="sup-tabs">
+    <div class="tab on" onclick="switchTab('sup-file','sup-tabs',this)">📁 파일 업로드 (Excel/CSV)</div>
+    <div class="tab" onclick="switchTab('sup-manual','sup-tabs',this)">✏️ 직접 입력</div>
+    <div class="tab" onclick="switchTab('sup-gsheet','sup-tabs',this)">📊 Google Sheets</div>
+  </div>
+
+  <div class="tc on" id="sup-file">
+    <div class="g2">
+      <div class="card mb14">
+        <div class="ct">✅ 확정 영업 데이터</div>
+        <div class="cs">계약 완료·집행 확정된 캠페인 데이터</div>
+        <div class="uz" id="uz-confirmed" onclick="document.getElementById('fi-confirmed').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event,'confirmed')">
+          <div class="zi">✅</div>
+          <p>확정 데이터 업로드</p>
+          <small>A열:주차 B열:팀명 C열:광고주 D열:대행사 E열:매체 F열:확정금액(원) G열:캠페인기간<br>Excel(.xlsx), CSV · 최대 50MB</small>
+        </div>
+        <input type="file" id="fi-confirmed" accept=".xlsx,.csv" style="display:none" onchange="handleFileUpload(this,'confirmed')">
+        <div id="st-confirmed"></div>
+        <div style="margin-top:10px;font-size:13px;color:var(--t2);">
+          <strong>확정 데이터 기준:</strong> 계약서 서명 완료 또는 PO 발행된 캠페인. 집행 취소 시 별도 취소 파일 업로드.
+        </div>
+      </div>
+      <div class="card mb14">
+        <div class="ct">📋 제안 영업 데이터</div>
+        <div class="cs">견적 제출·협의 중·제안 단계 캠페인</div>
+        <div class="uz" id="uz-proposed" onclick="document.getElementById('fi-proposed').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event,'proposed')">
+          <div class="zi">📋</div>
+          <p>제안 데이터 업로드</p>
+          <small>A열:주차 B열:팀명 C열:광고주 D열:대행사 E열:매체 F열:제안금액(원) G열:예상집행월 H열:성사확률(%)<br>Excel(.xlsx), CSV · 최대 50MB</small>
+        </div>
+        <input type="file" id="fi-proposed" accept=".xlsx,.csv" style="display:none" onchange="handleFileUpload(this,'proposed')">
+        <div id="st-proposed"></div>
+        <div style="margin-top:10px;font-size:13px;color:var(--t2);">
+          <strong>제안 데이터 기준:</strong> 견적서 제출 완료 또는 미팅 후 제안 단계. 성사 확률은 팀장이 주관적으로 판단하여 입력.
+        </div>
+      </div>
+    </div>
+    <div class="card mb14">
+      <div class="ct">📥 업로드 템플릿 다운로드</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
+        <button class="btn g" onclick="downloadTemplate('confirmed')">✅ 확정 템플릿 다운로드</button>
+        <button class="btn p" onclick="downloadTemplate('proposed')">📋 제안 템플릿 다운로드</button>
+        <button class="btn" onclick="downloadTemplate('cancel')">❌ 취소 템플릿 다운로드</button>
+      </div>
+      <div style="margin-top:10px;font-size:13px;color:var(--t3);">CSV 형식으로 제공됩니다. Excel에서 열어서 데이터 입력 후 저장하세요.</div>
+    </div>
+  </div>
+
+  <div class="tc" id="sup-manual">
+    <div class="card mb14">
+      <div class="ct">직접 입력 — 주간 영업 데이터</div>
+      <div class="cs">팀별 확정/제안 금액 직접 입력 (단위: 억원)</div>
+      <div style="display:flex;gap:10px;margin-bottom:12px;align-items:center;">
+        <select id="sel-week" class="inp-url" style="width:180px;margin-bottom:0">
+          <option>2026년 2월 3주차</option>
+          <option>2026년 2월 4주차</option>
+          <option>2026년 3월 1주차</option>
+        </select>
+        <select id="sel-type" class="inp-url" style="width:120px;margin-bottom:0">
+          <option value="confirmed">✅ 확정</option>
+          <option value="proposed">📋 제안</option>
+        </select>
+      </div>
+      <div class="wu-table">
+        <div class="wu-hd"><div>주차</div><div>팀명</div><div>금액(억원)</div><div>주요 광고주</div><div>매체</div><div>메모</div></div>
+        <div id="wu-rows"></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="btn p" onclick="saveManualData()">💾 저장</button>
+        <button class="btn" onclick="addManualRow()">+ 행 추가</button>
+        <button class="btn" onclick="clearManualRows()">초기화</button>
+      </div>
+      <div id="st-manual"></div>
+    </div>
+  </div>
+
+  <div class="tc" id="sup-gsheet">
+    <div class="card mb14">
+      <div class="ct">Google Sheets 연동</div>
+      <div class="cs">주간 영업 데이터가 저장된 Google Sheets URL을 등록합니다</div>
+      <div class="g2">
+        <div>
+          <label style="font-size:13px;font-weight:700;color:var(--t2);display:block;margin-bottom:6px;">✅ 확정 데이터 시트</label>
+          <input class="inp-url" id="url-gs-confirmed" placeholder="https://docs.google.com/spreadsheets/d/...">
+          <button class="btn p" style="width:100%;" onclick="connectGSheet('confirmed')">연결 테스트</button>
+          <div id="st-gs-confirmed"></div>
+        </div>
+        <div>
+          <label style="font-size:13px;font-weight:700;color:var(--t2);display:block;margin-bottom:6px;">📋 제안 데이터 시트</label>
+          <input class="inp-url" id="url-gs-proposed" placeholder="https://docs.google.com/spreadsheets/d/...">
+          <button class="btn p" style="width:100%;" onclick="connectGSheet('proposed')">연결 테스트</button>
+          <div id="st-gs-proposed"></div>
+        </div>
+      </div>
+      <div class="al i" style="margin-top:12px;">📌 매주 화요일 오전 11시에 자동으로 데이터를 가져와 주간 현황 대시보드에 반영합니다. Google Sheets는 나스미디어 조직 계정으로 공유 권한을 설정해야 합니다.</div>
+    </div>
+    <div class="card mb14">
+      <div class="ct">시트 컬럼 매핑 설정</div>
+      <div class="cs">Google Sheets의 컬럼 헤더명과 시스템 컬럼을 매핑합니다</div>
+      <div class="tw"><table class="t"><thead><tr><th>시스템 필드</th><th>시트 컬럼명</th><th>예시</th><th>필수</th></tr></thead>
+      <tbody>
+        <tr><td>주차</td><td><input class="wu-inp" value="주차" style="width:120px"></td><td>2026년 2월 3주차</td><td>✓</td></tr>
+        <tr><td>팀명</td><td><input class="wu-inp" value="팀명" style="width:120px"></td><td>광고1본부-4실-12팀</td><td>✓</td></tr>
+        <tr><td>광고주</td><td><input class="wu-inp" value="광고주" style="width:120px"></td><td>넥슨</td><td>✓</td></tr>
+        <tr><td>대행사</td><td><input class="wu-inp" value="대행사" style="width:120px"></td><td>TBWA</td><td></td></tr>
+        <tr><td>매체</td><td><input class="wu-inp" value="매체" style="width:120px"></td><td>Google</td><td></td></tr>
+        <tr><td>금액(원)</td><td><input class="wu-inp" value="금액" style="width:120px"></td><td>1500000000</td><td>✓</td></tr>
+        <tr><td>성사확률(%)</td><td><input class="wu-inp" value="성사확률" style="width:120px"></td><td>70 (제안시만)</td><td></td></tr>
+      </tbody></table></div>
+      <button class="btn p" style="margin-top:10px;" onclick="saveMappings()">매핑 저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     DATA UPLOAD PAGE (실적 데이터)
+══════════════════════════════════════════════ -->
+<div class="pg" id="pg-data-upload">
+  <div class="ph"><div class="ph-l"><h1>실적 데이터 업로드</h1><div class="meta">월별 실적 · 부서목표 · 매체 프로모션</div></div></div>
+  <div class="g2">
+    <div class="card mb14">
+      <div class="ct">📊 월별 실적 데이터 (raw)</div>
+      <div class="cs">대행사월 기준 Gross 취급고 원본 데이터</div>
+      <div class="tabs" id="ut1">
+        <div class="tab on" onclick="switchTab('du-file1','ut1',this)">파일</div>
+        <div class="tab" onclick="switchTab('du-gs1','ut1',this)">Google Sheets</div>
+      </div>
+      <div class="tc on" id="du-file1">
+        <div class="uz" onclick="document.getElementById('fi-raw').click()">
+          <div class="zi">📁</div><p>실적 파일 업로드</p>
+          <small>A:대행사월 B:담당팀 C:매체 D:광고주 E:대행사 F:Gross취급고<br>Excel(.xlsx) or CSV</small>
+        </div>
+        <input type="file" id="fi-raw" style="display:none" onchange="handleDataUpload(this,'perf')">
+        <div id="st-raw"></div>
+      </div>
+      <div class="tc" id="du-gs1">
+        <input class="inp-url" id="url-raw" placeholder="Google Sheets URL">
+        <button class="btn p" onclick="connectSheet('raw')">연결</button>
+        <div id="st-gs-raw"></div>
+      </div>
+    </div>
+    <div class="card mb14">
+      <div class="ct">🎯 부서별 목표 업로드</div>
+      <div class="cs">본부·실·팀 단위 월별 목표 금액</div>
+      <div class="uz" onclick="document.getElementById('fi-tgt').click()">
+        <div class="zi">🎯</div><p>목표 파일 업로드</p>
+        <small>A:팀명 B:연도 C:월 D:목표금액(원)<br>Excel(.xlsx) or CSV</small>
+      </div>
+      <input type="file" id="fi-tgt" style="display:none" onchange="handleDataUpload(this,'target')">
+      <div id="st-target"></div>
+    </div>
+    <div class="card mb14">
+      <div class="ct">📡 매체 프로모션 목표</div>
+      <div class="cs">매체별 인센티브·프로모션 기간 및 목표</div>
+      <table class="t" style="font-size:13px;margin-bottom:10px;">
+        <thead><tr><th>매체</th><th>기간</th><th>프로모션명</th><th>목표금액</th><th>진행율</th><th></th></tr></thead>
+        <tbody id="promo-list">
+          <tr><td>Google</td><td>2026.01~03</td><td>Q1 인센티브</td><td>80억</td><td><span class="ch b">35%</span></td><td><button class="sbtn" onclick="this.closest('tr').remove()">삭제</button></td></tr>
+          <tr><td>YouTube</td><td>2026.01~12</td><td>연간 BDA</td><td>600억</td><td><span class="ch y">12%</span></td><td><button class="sbtn" onclick="this.closest('tr').remove()">삭제</button></td></tr>
+          <tr><td>Naver</td><td>2026.01~06</td><td>상반기 프로모션</td><td>120억</td><td><span class="ch b">18%</span></td><td><button class="sbtn" onclick="this.closest('tr').remove()">삭제</button></td></tr>
+        </tbody>
+      </table>
+      <button class="btn p sm" onclick="addPromoRow()">+ 추가</button>
+    </div>
+    <div class="card mb14">
+      <div class="ct">👥 조직도 업로드</div>
+      <div class="cs">조직 변경 시 새 파일 업로드</div>
+      <div class="uz" onclick="document.getElementById('fi-org').click()">
+        <div class="zi">🏢</div><p>조직도 파일 업로드</p>
+        <small>A:이메일 B:이름 C:본부 D:실 E:팀 F:직급(팀원/팀장/실장/본부장/임원)</small>
+      </div>
+      <input type="file" id="fi-org" style="display:none" onchange="handleDataUpload(this,'org')">
+      <div id="st-org"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     CHAT PAGE
+══════════════════════════════════════════════ -->
+<div class="pg" id="pg-chat">
+  <div class="ph"><div class="ph-l"><h1>AI 분석 채팅</h1><div class="meta">공식 검증 데이터 기반 · 자유 분석 질문</div></div></div>
+  <div class="hints">
+    <button class="hc" onclick="document.getElementById('chat-inp').value='12월 취급고 급등의 핵심 원인은?')">12월 급등 원인</button>
+    <button class="hc" onclick="document.getElementById('chat-inp').value='광고1본부 4실 12팀 337억 분석')">4실-12팀 분석</button>
+    <button class="hc" onclick="document.getElementById('chat-inp').value='1월 영업 전략과 목표 달성 방안')">1월 전략</button>
+    <button class="hc" onclick="document.getElementById('chat-inp').value='넥슨 의존도 28.7% 리스크 대응')">넥슨 리스크</button>
+    <button class="hc" onclick="document.getElementById('chat-inp').value='TikTok 574% 성장 배경과 향후 전략')">TikTok 분석</button>
+    <button class="hc" onclick="document.getElementById('chat-inp').value='kpf 211억 대행사 분석')">kpf 대행사</button>
+    <button class="hc" onclick="document.getElementById('chat-inp').value='주간 영업현황 기반 이번주 파이프라인 평가')">파이프라인 평가</button>
+    <button class="hc" onclick="document.getElementById('chat-inp').value='본부별 1월 목표 설정 권고안')">1월 목표 설정</button>
+  </div>
+  <div class="chat-wrap">
+    <div class="chat-msgs" id="chat-msgs">
+      <div class="cm b">안녕하세요! 나스미디어 Revenue Intelligence AI입니다. 2025년 12월 공식 데이터(1,340.4억) 기반으로 분석합니다. 무엇이든 질문해 주세요.<div class="cm-t">준비완료</div></div>
+    </div>
+    <div class="chat-row">
+      <input id="chat-inp" placeholder="분석 질문 입력... (예: 넥슨 제외 시 실질 성장률은?)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}">
+      <button class="btn p" onclick="sendChat()" id="chat-btn">전송</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     ADMIN PAGE
+══════════════════════════════════════════════ -->
+<div class="pg" id="pg-admin">
+  <div class="ph"><div class="ph-l"><h1>관리자 설정</h1><div class="meta">사용자 관리 · 권한 설정 · 조직도</div></div></div>
+  <div class="tabs" id="adm-tabs">
+    <div class="tab on" onclick="switchTab('adm-users','adm-tabs',this)">사용자 관리</div>
+    <div class="tab" onclick="switchTab('adm-perm','adm-tabs',this)">권한 설정</div>
+    <div class="tab" onclick="switchTab('adm-sys','adm-tabs',this)">시스템 설정</div>
+  </div>
+  <div class="tc on" id="adm-users">
+    <div class="card mb14">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div class="ct">등록된 사용자</div>
+        <button class="btn p sm" onclick="addUser()">+ 사용자 추가</button>
+      </div>
+      <div class="tw"><table class="t"><thead><tr><th>#</th><th>이메일</th><th>이름</th><th>본부/팀</th><th>직급/역할</th><th>상태</th><th>마지막 로그인</th><th>작업</th></tr></thead><tbody id="tb-users"></tbody></table></div>
+    </div>
+  </div>
+  <div class="tc" id="adm-perm">
+    <div class="card mb14"><div class="ct">역할별 데이터 열람 권한</div>
+      <div class="tw"><table class="t"><thead><tr><th>메뉴</th><th>팀원</th><th>팀장</th><th>실장</th><th>본부장</th><th>임원</th></tr></thead>
+        <tbody>
+          <tr><td>Executive Summary</td><td>✗</td><td>✓</td><td>✓</td><td>✓</td><td class="tp">✓</td></tr>
+          <tr><td>핵심 KPI (전사)</td><td>✗</td><td>✗</td><td>✓</td><td>✓</td><td class="tp">✓</td></tr>
+          <tr><td>부서별 (자기팀)</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td class="tp">✓</td></tr>
+          <tr><td>부서별 (타팀)</td><td>✗</td><td>✗</td><td>실 범위</td><td>본부 범위</td><td class="tp">✓</td></tr>
+          <tr><td>광고주·대행사</td><td>✗</td><td>✓</td><td>✓</td><td>✓</td><td class="tp">✓</td></tr>
+          <tr><td>매체별 분석</td><td>자기팀 매체</td><td>✓</td><td>✓</td><td>✓</td><td class="tp">✓</td></tr>
+          <tr><td>예측·전략</td><td>자기팀</td><td>자기실</td><td>실 전체</td><td>본부 전체</td><td class="tp">✓</td></tr>
+          <tr><td>주간 영업현황</td><td>자기팀</td><td>자기실</td><td>실 전체</td><td>본부 전체</td><td class="tp">✓</td></tr>
+          <tr><td>영업 데이터 업로드</td><td>자기팀</td><td>자기팀</td><td>실 범위</td><td>본부 범위</td><td class="tp">✓</td></tr>
+          <tr><td>실적 데이터 업로드</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td class="tp">✓</td></tr>
+          <tr><td>관리자 설정</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td class="tp">✓</td></tr>
+        </tbody>
+      </table></div>
+      <button class="btn p" style="margin-top:12px;">저장</button>
+    </div>
+  </div>
+  <div class="tc" id="adm-sys">
+    <div class="card mb14"><div class="ct">시스템 설정</div>
+      <div class="fg" style="margin-top:12px;"><label>주간회의 알림 시간</label><input type="time" value="11:00" style="width:150px;padding:8px 12px;border:1.5px solid var(--b);border-radius:8px;font-family:inherit;"></div>
+      <div class="fg"><label>데이터 자동 새로고침 주기</label>
+        <select style="width:200px;padding:8px 12px;border:1.5px solid var(--b);border-radius:8px;font-family:inherit;">
+          <option>매일 오전 8시</option><option>매주 월요일 오전 8시</option><option>수동</option>
+        </select>
+      </div>
+      <div class="fg"><label>조직 데이터 기준일</label><input type="date" value="2026-01-20" style="width:180px;padding:8px 12px;border:1.5px solid var(--b);border-radius:8px;font-family:inherit;"></div>
+      <button class="btn p">저장</button>
+    </div>
+  </div>
+</div>
+
+<div class="pg" id="pg-weekly-fc">
+  <div class="ph"><div class="ph-l"><h1>주간회의록 예측분석</h1><div class="meta">매주 화요일 12:00 기준 · 확정/제안금액 분석</div></div></div>
+  <div class="al i">📋 구글시트 링크를 <strong>주간회의록 링크 등록</strong> 메뉴에 등록하면 매주 화요일 자동 분석됩니다.</div>
+  <div class="g4">
+    <div class="kpi" style="border-top:3px solid var(--blue)"><div class="kl">이번주 확정</div><div class="kv" style="color:var(--blue)">48.2<span class="u">억</span></div><span class="kd p">▲ +12.4% 전주</span></div>
+    <div class="kpi" style="border-top:3px solid var(--ylw)"><div class="kl">이번주 제안</div><div class="kv" style="color:var(--ylw)">124.6<span class="u">억</span></div><span class="kd w">→ 전환예상 38.7%</span></div>
+    <div class="kpi" style="border-top:3px solid var(--grn)"><div class="kl">1월 누적 확정</div><div class="kv" style="color:var(--grn)">236.4<span class="u">억</span></div><span class="kd p">▲ 전년比 +8.2%</span></div>
+    <div class="kpi" style="border-top:3px solid var(--prp)"><div class="kl">파이프라인 총액</div><div class="kv" style="color:var(--prp)">463.8<span class="u">억</span></div><span class="kd e">제안+확정 합산</span></div>
+  </div>
+  <div class="abox"><div class="at">📊 이번주 (2/17~2/21) 파이프라인 분석</div><div class="ab"><ul>
+    <li>확정 48.2억: 광고1본부 28.4억(58.9%), 광고2본부 11.8억(24.5%), 광고3본부 8억(16.6%)</li>
+    <li>제안 124.6억: 넥슨 Q1 연장 제안 45억 포함. 설 시즌 이커머스 3사 제안 28억. 전환율 38.7% 시 목표달성률 56.9%</li>
+    <li>액션 필요: 이수진팀 35억 제안 중 확정 전환 최우선. 우희철팀 TikTok 캠페인 조기 확정 필요.</li>
+  </ul></div></div>
+  <div class="al i">⚙ 구글시트 링크 미등록 상태입니다. <button onclick="goto('weekly-link',document.querySelector('[data-pg=weekly-link]'))" class="btn sm p" style="margin-left:8px">링크 등록하기</button></div>
+</div>
+
+<div class="pg" id="pg-target-upload">
+  <div class="ph"><div class="ph-l"><h1>부서 목표 업로드</h1><div class="meta">본부/실/팀 단위 월별 목표 입력</div></div></div>
+  <div class="card mb14">
+    <div class="ct">부서별 목표 업로드</div><div class="cs">엑셀/CSV 형식 · 컬럼: 본부/실/팀/1월/2월/.../12월</div>
+    <div class="uz" onclick="document.getElementById('f-target').click()"><div class="uz-icon">🎯</div><p>목표 파일을 여기에 드래그하거나 클릭하세요</p><small>지원 형식: .xlsx · .csv · 구글 시트 URL</small></div>
+    <input type="file" id="f-target" accept=".xlsx,.csv" style="display:none">
+    <div style="margin-top:14px"><div class="ct" style="margin-bottom:8px">직접 입력</div>
+    <div class="tw"><table class="t"><thead><tr><th>본부</th><th>팀</th><th>1월 목표</th><th>2월 목표</th><th>3월 목표</th><th>Q1 합계</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>광고1본부</td><td>전체</td><td><input class="url-inp" style="padding:4px 8px;width:90px" value="450억"></td><td><input class="url-inp" style="padding:4px 8px;width:90px" value="320억"></td><td><input class="url-inp" style="padding:4px 8px;width:90px" value="380억"></td><td class="tnum">1,150억</td><td><span class="ch g">저장됨</span></td></tr>
+      <tr><td>광고2본부</td><td>전체</td><td><input class="url-inp" style="padding:4px 8px;width:90px" value="180억"></td><td><input class="url-inp" style="padding:4px 8px;width:90px" value="140억"></td><td><input class="url-inp" style="padding:4px 8px;width:90px" value="160억"></td><td class="tnum">480억</td><td><span class="ch g">저장됨</span></td></tr>
+      <tr><td>광고3본부</td><td>전체</td><td><input class="url-inp" style="padding:4px 8px;width:90px" value="130억"></td><td><input class="url-inp" style="padding:4px 8px;width:90px" value="100억"></td><td><input class="url-inp" style="padding:4px 8px;width:90px" value="120억"></td><td class="tnum">350억</td><td><span class="ch g">저장됨</span></td></tr>
+    </tbody></table></div>
+    <button class="btn p" style="margin-top:10px">💾 저장</button>
+    </div>
+  </div>
+</div>
+
+<div class="pg" id="pg-promo-upload">
+  <div class="ph"><div class="ph-l"><h1>매체 프로모션 목표</h1><div class="meta">매체별 인센티브 프로모션 기간 및 목표 등록</div></div></div>
+  <div class="al i">💡 등록된 프로모션 목표는 매체별 분석 페이지에서 달성도(본부/실/팀 롤업)로 자동 표시됩니다.</div>
+  <div class="card mb14">
+    <div class="ct">활성 프로모션 목표</div><div class="cs">기간 내 목표 달성률을 매체 분석에서 자동 추적</div>
+    <button class="btn p" style="margin-bottom:12px" onclick="addPromoRow()">+ 프로모션 추가</button>
+    <div class="tw"><table class="t" id="tb-promo"><thead><tr><th>매체</th><th>기간</th><th>프로모션명</th><th class="r">목표금액</th><th>달성현황</th><th></th></tr></thead>
+    <tbody>
+      <tr><td><span class="ch b">Google</span></td><td class="tnum">2026.01~06</td><td>상반기 프로모션</td><td class="r tnum">120억</td><td><span class="ch w">18%</span></td><td><button class="btn sm" onclick="this.closest('tr').remove()">삭제</button></td></tr>
+      <tr><td><span class="ch g">Naver</span></td><td class="tnum">2026.01~03</td><td>Q1 GFA 인센티브</td><td class="r tnum">45억</td><td><span class="ch y">32%</span></td><td><button class="btn sm" onclick="this.closest('tr').remove()">삭제</button></td></tr>
+      <tr><td><span class="ch r">TikTok</span></td><td class="tnum">2026.01~12</td><td>연간 파트너 프로그램</td><td class="r tnum">80억</td><td><span class="ch y">8%</span></td><td><button class="btn sm" onclick="this.closest('tr').remove()">삭제</button></td></tr>
+    </tbody></table></div>
+  </div>
+</div>
+
+<div class="pg" id="pg-weekly-link">
+  <div class="ph"><div class="ph-l"><h1>주간회의록 링크 등록</h1><div class="meta">구글시트 링크 · 매주 화요일 12:00 자동 갱신</div></div></div>
+  <div class="card mb14">
+    <div class="ct">구글시트 URL 등록</div><div class="cs">주간 영업 현황 데이터가 담긴 구글시트 공유 링크를 등록하세요</div>
+    <div class="fg" style="margin-bottom:12px"><label style="font-size:12.5px;font-weight:700;color:var(--t2);display:block;margin-bottom:6px">구글시트 URL</label>
+    <input class="url-inp" id="weekly-sheet-url" placeholder="https://docs.google.com/spreadsheets/d/...">
+    </div>
+    <div class="al i" style="margin-bottom:12px">⚙ 시트에는 다음 컬럼이 필요합니다: <strong>주차 · 팀명 · 광고주 · 매체 · 확정금액 · 제안금액 · 기간</strong></div>
+    <button class="btn p" onclick="alert('링크 저장 완료! 매주 화요일 12:00에 자동 갱신됩니다.')">💾 링크 저장 및 연결 테스트</button>
+    <div style="margin-top:18px"><div class="ct" style="margin-bottom:8px">자동 갱신 스케줄</div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <span class="ch g">✓ 매주 화요일 12:00</span>
+      <span class="ch b">최종 갱신: 2026-02-18 12:00</span>
+      <button class="btn sm" onclick="alert('수동 갱신 완료')">지금 갱신</button>
+    </div></div>
+  </div>
+</div>
+
+
+<!-- ═══ NEW PAGES ═══════════════════════════════════════════════════ -->
+<div class="pg" id="pg-sales-ov">
+  <div class="ph">
+    <div class="ph-l"><h1>전사 주간 영업현황</h1><div class="meta" id="sales-ov-meta">2025년 12월 · 주간 확정/제안 현황</div></div>
+    <div class="ph-r">
+      <select class="sbtn" id="week-filter" onchange="filterSalesWeek(this.value)" style="padding:5px 10px">
+        <option value="all">전체 주차</option>
+        <option value="1">1주차</option><option value="2">2주차</option><option value="3">3주차</option><option value="4" selected>4주차</option>
+      </select>
+      <button class="btn p sm" onclick="refreshSalesData()">🔄 새로고침</button>
+    </div>
+  </div>
+
+  <!-- 금주 KPI -->
+  <div class="g4" style="margin-bottom:14px">
+    <div class="week-confirm" style="border-radius:var(--r2);padding:14px">
+      <div class="wkpi-lbl">금주 확정</div>
+      <div class="wkpi-val" style="color:var(--grn)" id="kpi-week-confirm">48.2억</div>
+      <div class="wkpi-sub"><span class="kd p" style="font-size:11.5px">전주比 +15.1%</span></div>
+    </div>
+    <div class="week-propose" style="border-radius:var(--r2);padding:14px">
+      <div class="wkpi-lbl">금주 제안</div>
+      <div class="wkpi-val" style="color:var(--blue)" id="kpi-week-propose">124.6억</div>
+      <div class="wkpi-sub"><span class="kd b" style="font-size:11.5px">전주比 +10.8%</span></div>
+    </div>
+    <div class="kpi">
+      <div class="kl">금월 누적 확정</div>
+      <div class="kv" id="kpi-month-confirm">128.9<span class="u">억</span></div>
+      <span class="kd e">목표 대비 <span id="kpi-month-confirm-rate">18.4%</span></span>
+    </div>
+    <div class="kpi">
+      <div class="kl">금월 누적 제안</div>
+      <div class="kv" id="kpi-month-propose">358.4<span class="u">억</span></div>
+      <span class="kd b">당월 예측 <span id="kpi-month-fc">685억</span></span>
+    </div>
+  </div>
+
+  <!-- 주차별 트렌드 -->
+  <div class="g2">
+    <div class="card mb14">
+      <div class="ct">주차별 취급고 추이 (12월)</div>
+      <div class="cs">확정 · 제안 주차별 누적 현황</div>
+      <canvas id="c-sales-weekly-trend" height="60"></canvas>
+    </div>
+    <div class="card mb14">
+      <div class="ct">전년 동기간 비교</div>
+      <div class="cs">2025년 12월 vs 2024년 12월 주차별</div>
+      <canvas id="c-sales-yoy-compare" height="60"></canvas>
+    </div>
+  </div>
+
+  <!-- 본부별 현황 -->
+  <div class="card mb14">
+    <div class="ct">본부별 주간 영업현황</div>
+    <div class="cs">금주 확정/제안 · 금월 누적 · 목표 대비</div>
+    <div class="tw"><table class="t">
+      <thead><tr>
+        <th>본부</th>
+        <th class="r">금주 확정</th><th class="r">금주 제안</th>
+        <th class="r">금월 확정</th><th class="r">금월 제안</th>
+        <th class="r">월 목표</th><th class="r">확정률</th><th class="r">예측</th>
+        <th class="r">전년동기</th><th class="r">YoY</th>
+        <th>파이프라인</th>
+      </tr></thead>
+      <tbody id="tb-sales-bonbu"></tbody>
+    </table></div>
+  </div>
+
+  <!-- 주요 이슈 분석 -->
+  <div class="g2">
+    <div class="card mb14">
+      <div class="ct">📈 금주 주요 확정 건</div>
+      <div class="cs">광고주/대행사별 주목 확정 내역</div>
+      <div id="sales-ov-confirms"></div>
+    </div>
+    <div class="card mb14">
+      <div class="ct">💡 금주 전략 영업활동</div>
+      <div class="cs">주목해야 할 제안 파이프라인</div>
+      <div id="sales-ov-proposals"></div>
+    </div>
+  </div>
+
+  <!-- 월/분기 예측 -->
+  <div class="card mb14">
+    <div class="ct">당월 · 당분기 예측 (영업활동 기반)</div>
+    <div class="cs">확정 + 제안 × 성사율 기반 예측 · 일할 배분 적용</div>
+    <div class="g4">
+      <div class="fc-box">
+        <div class="fc-lbl">당월 예측 (취급고)</div>
+        <div class="fc-val" id="fc-month-gross">680억</div>
+        <div class="fc-rng">범위: 640~720억</div>
+        <div class="prog" style="margin-top:8px">
+          <div class="prog-hd"><span>목표 대비</span><span id="fc-month-target">목표: 700억</span></div>
+          <div class="prog-bar"><div class="prog-fill y" style="width:97%"></div></div>
+        </div>
+      </div>
+      <div class="fc-box">
+        <div class="fc-lbl">당월 예측 (매출)</div>
+        <div class="fc-val" id="fc-month-net" style="color:var(--grn)">57.8억</div>
+        <div class="fc-rng">매출수익율 8.5% 기준</div>
+      </div>
+      <div class="fc-box">
+        <div class="fc-lbl">당분기 예측 (취급고)</div>
+        <div class="fc-val" id="fc-qtr-gross" style="color:var(--pur)">1,950억</div>
+        <div class="fc-rng">Q4: 10~12월 합계</div>
+        <div class="prog" style="margin-top:8px">
+          <div class="prog-hd"><span>Q4 목표 대비</span><span>목표: 2,050억</span></div>
+          <div class="prog-bar"><div class="prog-fill y" style="width:95%"></div></div>
+        </div>
+      </div>
+      <div class="fc-box">
+        <div class="fc-lbl">차월 예상 (취급고)</div>
+        <div class="fc-val" id="fc-next-month" style="color:var(--ylw)">420억</div>
+        <div class="fc-rng">2026년 1월 예측</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 전략 분석 -->
+  <div class="card mb14">
+    <div class="ct">🎯 목표달성 영업전략</div>
+    <div class="cs" id="strategy-period-label">2025년 12월 · Q4 목표달성을 위한 전사 전략</div>
+    <div id="sales-ov-strategy"></div>
+  </div>
+</div>
+
+<!-- ═══ 영업활동: 부서별 ════════════════════════════════════════════ -->
+<div class="pg" id="pg-sales-org-1">
+  <div class="ph"><div class="ph-l"><h1>광고1본부 영업현황</h1><div class="meta">주간 확정/제안 · 실/팀별 세분화 · 목표달성 전략</div></div></div>
+  <div id="c-sales-org-1"></div>
+</div>
+<div class="pg" id="pg-sales-org-2">
+  <div class="ph"><div class="ph-l"><h1>광고2본부 영업현황</h1><div class="meta">주간 확정/제안 · 실/팀별 세분화</div></div></div>
+  <div id="c-sales-org-2"></div>
+</div>
+<div class="pg" id="pg-sales-org-3">
+  <div class="ph"><div class="ph-l"><h1>광고3본부 영업현황</h1><div class="meta">주간 확정/제안 · 실/팀별 세분화</div></div></div>
+  <div id="c-sales-org-3"></div>
+</div>
+<div class="pg" id="pg-sales-org-m">
+  <div class="ph"><div class="ph-l"><h1>미디어/플랫폼사업본부 영업현황</h1></div></div>
+  <div id="c-sales-org-m"></div>
+</div>
+
+<!-- ═══ 영업활동: 예측 & 전략 ═════════════════════════════════════════ -->
+<div class="pg" id="pg-sales-forecast">
+  <div class="ph"><div class="ph-l"><h1>예측 & 목표달성 전략</h1><div class="meta">영업활동 데이터 기반 월/분기 예측 · 부서별 전략</div></div></div>
+  <div class="g4">
+    <div class="fc-box"><div class="fc-lbl">전사 1월 예측</div><div class="fc-val">680억</div><div class="fc-rng">범위: 640~720억</div></div>
+    <div class="fc-box"><div class="fc-lbl">Q1 2026 예측</div><div class="fc-val">1,850억</div><div class="fc-rng">1~3월 합계</div></div>
+    <div class="fc-box"><div class="fc-lbl">Q1 매출 예측</div><div class="fc-val" style="color:var(--grn)">157억</div><div class="fc-rng">수익율 8.5% 기준</div></div>
+    <div class="fc-box"><div class="fc-lbl">목표달성 예상</div><div class="fc-val" style="color:var(--ylw)">94%</div><div class="fc-rng">Q1 목표: 1,970억</div></div>
+  </div>
+  <div id="c-sales-fc-detail"></div>
+</div>
+
+<!-- ═══ 영업활동: 자사매체 ════════════════════════════════════════════ -->
+<div class="pg" id="pg-sales-nap">
+  <div class="ph"><div class="ph-l"><h1>NAP 플랫폼 영업현황</h1><div class="meta">자사 플랫폼 · DSP/ADX/CPS 주간 영업활동</div></div></div>
+  <div id="c-sales-nap"></div>
+</div>
+<div class="pg" id="pg-sales-ooh">
+  <div class="ph"><div class="ph-l"><h1>지하철·엔스퀘어 영업현황</h1><div class="meta">자사 옥외매체 주간 영업활동</div></div></div>
+  <div id="c-sales-ooh"></div>
+</div>
+
+<!-- ═══ 영업활동: 매체별 영업현황 ════════════════════════════════════ -->
+<div class="pg" id="pg-sales-media">
+  <div class="ph"><div class="ph-l"><h1>매체별 영업현황</h1><div class="meta">상위 20개 매체 · 주간 확정/제안 · 월/분기 예측 · Net/Gross 구분</div></div></div>
+  <div id="c-sales-media"></div>
+</div>
+
+<!-- ═══ 영업활동: 광고주별 ════════════════════════════════════════════ -->
+<div class="pg" id="pg-sales-adv">
+  <div class="ph"><div class="ph-l"><h1>광고주별 영업현황</h1><div class="meta">광고주 단위 영업파이프라인 · 수익율 분석</div></div></div>
+  <div id="c-sales-adv"></div>
+</div>
+
+<!-- ═══ 영업활동: 대행사별 ════════════════════════════════════════════ -->
+<div class="pg" id="pg-sales-agency">
+  <div class="ph"><div class="ph-l"><h1>대행사별 영업현황</h1><div class="meta">대행사 단위 파이프라인 · 수익율 분석</div></div></div>
+  <div id="c-sales-agency"></div>
+</div>
+
+<!-- ═══ 영업활동: 주간회의록 ═════════════════════════════════════════ -->
+<div class="pg" id="pg-sales-weekly">
+  <div class="ph"><div class="ph-l"><h1>주간회의록 분석</h1><div class="meta">제안/확정 데이터 업로드 · 자동 분석 · 일할 계산</div></div></div>
+  <div class="tab-bar">
+    <div class="tab-item on" onclick="switchTab('wtab','wtab-input',this)">📥 데이터 입력</div>
+    <div class="tab-item" onclick="switchTab('wtab','wtab-analysis',this)">📊 자동 분석</div>
+    <div class="tab-item" onclick="switchTab('wtab','wtab-proration',this)">📅 일할 계산</div>
+  </div>
+  <div class="tab-content on" id="wtab-input">
+    <div class="g2">
+      <div class="card mb14">
+        <div class="ct">Google Sheets 연결</div>
+        <div class="cs">주간회의록 시트를 연결하면 자동 분석됩니다</div>
+        <div class="fg"><label>Google Sheets URL</label><input class="url-inp" id="url-weekly-sheet" placeholder="https://docs.google.com/spreadsheets/d/..."></div>
+        <button class="btn p" onclick="connectWeeklySheet()">🔗 연결 및 가져오기</button>
+        <div id="st-weekly-connect" style="margin-top:10px"></div>
+      </div>
+      <div class="card mb14">
+        <div class="ct">파일 업로드</div>
+        <div class="cs">Excel (.xlsx) 또는 CSV 파일</div>
+        <div class="uz" onclick="document.getElementById('f-weekly').click()">
+          <div style="font-size:28px">📋</div>
+          <p style="font-weight:600;margin:6px 0">파일을 드래그하거나 클릭하세요</p>
+          <small style="color:var(--t3)">필수컬럼: 주차·팀·광고주·대행사·매체·취급고·매출·기간시작·기간종료·유형(확정/제안)</small>
+        </div>
+        <input type="file" id="f-weekly" accept=".xlsx,.csv" style="display:none" onchange="handleWeeklyUpload(this)">
+        <div id="st-weekly-upload" style="margin-top:8px"></div>
+      </div>
+    </div>
+    <div class="card mb14">
+      <div class="ct">직접 입력</div>
+      <div class="cs">개별 캠페인 데이터 수동 입력</div>
+      <div class="tw"><table class="t">
+        <thead><tr><th>유형</th><th>팀</th><th>광고주</th><th>대행사</th><th>매체</th><th>취급고(원)</th><th>매출(원)</th><th>기간 시작</th><th>기간 종료</th><th></th></tr></thead>
+        <tbody id="weekly-manual-rows"></tbody>
+      </table></div>
+      <button class="btn s sm" onclick="addWeeklyRow()" style="margin-top:8px">+ 행 추가</button>
+      <button class="btn p sm" onclick="saveWeeklyData()" style="margin-top:8px;margin-left:8px">💾 저장</button>
+    </div>
+  </div>
+  <div class="tab-content" id="wtab-analysis">
+    <div id="weekly-analysis-content">
+      <div class="al i">데이터를 업로드하거나 입력하면 자동으로 분석됩니다.</div>
+    </div>
+  </div>
+  <div class="tab-content" id="wtab-proration">
+    <div class="card mb14">
+      <div class="ct">📅 일할(日割) 계산기</div>
+      <div class="cs">캠페인 기간이 여러 달에 걸친 경우, 각 월 귀속금액을 자동 계산합니다</div>
+      <div class="g3">
+        <div class="fg"><label>총 취급고 (원)</label><input class="url-inp" id="prorate-amount" placeholder="1000000000" type="number"></div>
+        <div class="fg"><label>캠페인 시작일</label><input class="url-inp" id="prorate-start" type="date" value="2025-12-15"></div>
+        <div class="fg"><label>캠페인 종료일</label><input class="url-inp" id="prorate-end" type="date" value="2026-01-31"></div>
+      </div>
+      <button class="btn p" onclick="calcProration()">계산하기</button>
+      <div id="prorate-result" style="margin-top:14px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 데이터 관리 ════════════════════════════════════════════════ -->
+<div class="pg" id="pg-settings-data">
+  <div class="ph"><div class="ph-l"><h1>데이터 관리</h1><div class="meta">실적/영업/목표/프로모션/컨택리포트 데이터 업로드 및 관리</div></div></div>
+  <div class="tab-bar">
+    <div class="tab-item on" onclick="switchTab('dtab','dtab-perf',this)">📊 회계 실적</div>
+    <div class="tab-item" onclick="switchTab('dtab','dtab-weekly',this)">📋 주간회의록</div>
+    <div class="tab-item" onclick="switchTab('dtab','dtab-target',this)">🎯 목표 데이터</div>
+    <div class="tab-item" onclick="switchTab('dtab','dtab-promo',this)">🎪 매체 프로모션</div>
+    <div class="tab-item" onclick="switchTab('dtab','dtab-contact',this)">📞 컨택리포트</div>
+  </div>
+
+  <div class="tab-content on" id="dtab-perf">
+    <div class="g2">
+      <div class="card mb14">
+        <div class="ct">회계기준 실적 데이터 업로드</div>
+        <div class="cs">인보이스 기준 취급고 · 매출 · 매출수익율 (월간)</div>
+        <div class="uz" onclick="document.getElementById('f-perf-data').click()">
+          <div style="font-size:28px">📂</div>
+          <p style="font-weight:600;margin:6px 0">실적 파일 업로드</p>
+          <small style="color:var(--t3)">컬럼: 연도·월·본부·실·팀·매체·취급고·매출·매출수익율</small>
+        </div>
+        <input type="file" id="f-perf-data" accept=".xlsx,.csv" style="display:none" onchange="handleDataUpload(this,'perf')">
+        <div id="st-perf-upload" style="margin-top:8px"></div>
+        <div style="margin-top:12px"><div style="font-size:13px;font-weight:600;margin-bottom:6px">또는 Google Sheets 연결</div>
+          <input class="url-inp" id="url-perf-sheet" placeholder="https://docs.google.com/spreadsheets/d/...">
+          <button class="btn s sm" onclick="connectSheet('perf')" style="margin-top:6px">연결</button>
+        </div>
+      </div>
+      <div class="card mb14">
+        <div class="ct">업로드 현황</div>
+        <div class="cs">현재 적재된 데이터 범위</div>
+        <table class="t">
+          <tbody>
+            <tr><td style="color:var(--t2)">최근 업로드</td><td style="font-weight:600">2025-12-31 (12월 확정)</td></tr>
+            <tr><td style="color:var(--t2)">데이터 범위</td><td style="font-weight:600">2025.01 ~ 2025.12</td></tr>
+            <tr><td style="color:var(--t2)">레코드 수</td><td style="font-weight:600">8,429개</td></tr>
+            <tr><td style="color:var(--t2)">검증 상태</td><td><span class="ch g">✓ 검증완료</span></td></tr>
+            <tr><td style="color:var(--t2)">전년도 데이터</td><td><span class="ch y">2024년 부분 데이터</span></td></tr>
+          </tbody>
+        </table>
+        <button class="btn s sm" onclick="openVerify()" style="margin-top:10px">⊕ 데이터 검증 실행</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="dtab-weekly">
+    <div class="g2">
+      <div class="card mb14">
+        <div class="ct">주간회의록 데이터</div>
+        <div class="cs">제안/확정 캠페인 · 취급고/매출/기간 포함</div>
+        <div class="uz" onclick="document.getElementById('f-weekly2').click()">
+          <div style="font-size:28px">📋</div>
+          <p style="font-weight:600;margin:6px 0">주간회의록 업로드</p>
+          <small style="color:var(--t3)">컬럼: 주차·팀·광고주·대행사·매체·유형·취급고·매출·시작일·종료일</small>
+        </div>
+        <input type="file" id="f-weekly2" accept=".xlsx,.csv" style="display:none" onchange="handleDataUpload(this,'weekly')">
+        <div style="margin-top:12px"><input class="url-inp" id="url-weekly2" placeholder="Google Sheets URL">
+          <button class="btn s sm" onclick="connectSheet('weekly')" style="margin-top:6px">연결</button>
+          <div style="font-size:12.5px;color:var(--t3);margin-top:4px">매주 화요일 12:00 자동 갱신</div>
+        </div>
+      </div>
+      <div class="card mb14">
+        <div class="ct">최근 업로드 현황</div>
+        <table class="t"><tbody>
+          <tr><td style="color:var(--t2)">최근 회의록</td><td style="font-weight:600">2025 W51 (12월 4주)</td></tr>
+          <tr><td style="color:var(--t2)">레코드</td><td style="font-weight:600">확정 42건 / 제안 187건</td></tr>
+          <tr><td style="color:var(--t2)">확정 합계</td><td style="font-weight:600;color:var(--grn)">48.2억</td></tr>
+          <tr><td style="color:var(--t2)">제안 합계</td><td style="font-weight:600;color:var(--blue)">124.6억</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="dtab-target">
+    <div class="g2">
+      <div class="card mb14">
+        <div class="ct">부서별 목표 데이터</div>
+        <div class="cs">본부/실/팀 단위 · 월별 취급고 및 매출 목표</div>
+        <div class="uz" onclick="document.getElementById('f-target').click()">
+          <div style="font-size:28px">🎯</div>
+          <p style="font-weight:600;margin:6px 0">목표 파일 업로드</p>
+          <small style="color:var(--t3)">컬럼: 연도·본부·실·팀·월별목표(취급고·매출)</small>
+        </div>
+        <input type="file" id="f-target" accept=".xlsx,.csv" style="display:none" onchange="handleDataUpload(this,'target')">
+        <button class="btn s sm" onclick="downloadTemplate('target')" style="margin-top:8px">📥 양식 다운로드</button>
+      </div>
+      <div class="card mb14">
+        <div class="ct">2026년 Q1 목표 현황</div>
+        <div class="tw"><table class="t"><thead><tr><th>본부</th><th class="r">1월</th><th class="r">2월</th><th class="r">3월</th><th class="r">Q1</th></tr></thead>
+        <tbody>
+          <tr><td style="font-weight:600">광고1본부</td><td class="r tnum">450억</td><td class="r tnum">320억</td><td class="r tnum">380억</td><td class="r hl">1,150억</td></tr>
+          <tr><td style="font-weight:600">광고2본부</td><td class="r tnum">180억</td><td class="r tnum">140억</td><td class="r tnum">160억</td><td class="r hl">480억</td></tr>
+          <tr><td style="font-weight:600">광고3본부</td><td class="r tnum">130억</td><td class="r tnum">100억</td><td class="r tnum">120억</td><td class="r hl">350억</td></tr>
+          <tr><td style="font-weight:600">미디어/플랫폼</td><td class="r tnum">25억</td><td class="r tnum">20억</td><td class="r tnum">22억</td><td class="r hl">67억</td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="dtab-promo">
+    <div class="card mb14">
+      <div class="ct">매체 프로모션 목표 관리</div>
+      <div class="cs">Net/Gross 기준 구분 · 팀별 세분 목표 포함 가능</div>
+      <div class="al i">
+        <strong>Net vs Gross 안내</strong>: 구글·메타·넷플릭스는 매체 지급 순금액(Net) 기준 목표. 네이버·카카오 등은 총취급고(Gross) 기준. 각 매체별로 설정 가능합니다.
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button class="btn p sm" onclick="addPromoRow()">+ 프로모션 추가</button>
+        <button class="btn s sm" onclick="document.getElementById('f-promo').click()">📤 Excel 업로드</button>
+        <button class="btn s sm" onclick="downloadTemplate('promo')">📥 양식 다운로드</button>
+        <input type="file" id="f-promo" accept=".xlsx,.csv" style="display:none" onchange="handleDataUpload(this,'promo')">
+      </div>
+      <div class="tw"><table class="t" id="tb-promo-main">
+        <thead><tr><th>매체</th><th>기간</th><th>프로모션명</th><th>기준</th><th class="r">목표금액</th><th>팀별목표</th><th>달성현황</th><th></th></tr></thead>
+        <tbody id="tb-promo-body">
+          <tr>
+            <td><span class="ch b">Google</span></td>
+            <td class="tnum">2026.01~06</td>
+            <td>상반기 파트너 인센티브</td>
+            <td><span class="ng-toggle"><button class="ng-btn on">Net</button><button class="ng-btn">Gross</button></span></td>
+            <td class="r tnum hl">120억</td>
+            <td><span class="ch gr">없음</span></td>
+            <td><span class="ch y">18%</span></td>
+            <td><button class="btn xs" onclick="this.closest('tr').remove()">삭제</button></td>
+          </tr>
+          <tr>
+            <td><span class="ch g">Naver</span></td>
+            <td class="tnum">2026.01~03</td>
+            <td>Q1 GFA 인센티브</td>
+            <td><span class="ng-toggle"><button class="ng-btn">Net</button><button class="ng-btn on">Gross</button></span></td>
+            <td class="r tnum hl">45억</td>
+            <td><button class="btn xs" onclick="openTeamTargetModal('Naver')">설정</button></td>
+            <td><span class="ch y">32%</span></td>
+            <td><button class="btn xs" onclick="this.closest('tr').remove()">삭제</button></td>
+          </tr>
+          <tr>
+            <td><span class="ch r">TikTok</span></td>
+            <td class="tnum">2026.01~12</td>
+            <td>연간 파트너</td>
+            <td><span class="ng-toggle"><button class="ng-btn">Net</button><button class="ng-btn on">Gross</button></span></td>
+            <td class="r tnum hl">80억</td>
+            <td><span class="ch gr">없음</span></td>
+            <td><span class="ch r">8%</span></td>
+            <td><button class="btn xs" onclick="this.closest('tr').remove()">삭제</button></td>
+          </tr>
+          <tr>
+            <td><span style="color:#e50914;font-weight:700">Netflix</span></td>
+            <td class="tnum">2026.01~12</td>
+            <td>연간 목표</td>
+            <td><span class="ng-toggle"><button class="ng-btn on">Net</button><button class="ng-btn">Gross</button></span></td>
+            <td class="r tnum hl">60억</td>
+            <td><button class="btn xs" onclick="openTeamTargetModal('Netflix')">설정</button></td>
+            <td><span class="ch r">12%</span></td>
+            <td><button class="btn xs" onclick="this.closest('tr').remove()">삭제</button></td>
+          </tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="dtab-contact">
+    <div class="g2">
+      <div class="card mb14">
+        <div class="ct">컨택리포트 업로드</div>
+        <div class="cs">광고주/대행사 컨택 활동 기록</div>
+        <div class="uz" onclick="document.getElementById('f-contact').click()">
+          <div style="font-size:28px">📞</div>
+          <p style="font-weight:600;margin:6px 0">컨택리포트 파일 업로드</p>
+          <small style="color:var(--t3)">컬럼: 일자·팀·담당자·광고주·대행사·컨택유형·내용·다음액션</small>
+        </div>
+        <input type="file" id="f-contact" accept=".xlsx,.csv" style="display:none" onchange="handleDataUpload(this,'contact')">
+      </div>
+      <div class="card mb14">
+        <div class="ct">Google Sheets 연결</div>
+        <input class="url-inp" id="url-contact" placeholder="컨택리포트 Google Sheets URL" style="margin-bottom:8px">
+        <button class="btn p sm" onclick="connectSheet('contact')">🔗 연결</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 관리자 설정 ════════════════════════════════════════════════ -->
+<div class="pg" id="pg-settings-admin">
+  <div class="ph"><div class="ph-l"><h1>관리자 설정</h1><div class="meta">조직도 · 사용자 관리 · 매체 설정</div></div></div>
+  <div class="tab-bar">
+    <div class="tab-item on" onclick="switchTab('atab','atab-org',this)">🏢 조직도 & 인원</div>
+    <div class="tab-item" onclick="switchTab('atab','atab-users',this)">👤 사용자 관리</div>
+    <div class="tab-item" onclick="switchTab('atab','atab-media-cfg',this)">📡 매체 설정</div>
+    <div class="tab-item" onclick="switchTab('atab','atab-margin',this)">💰 수익율 설정</div>
+  </div>
+
+  <div class="tab-content on" id="atab-org">
+    <div class="al i">조직별 인원 수를 입력하면 인당취급고, 인당매출, 인당 캠페인수 등이 자동 계산됩니다.</div>
+    <div class="g2">
+      <div class="card mb14">
+        <div class="ct">본부별 인원 현황</div>
+        <div class="cs">인당 취급고/매출 계산 기준</div>
+        <div id="org-headcount-table"></div>
+        <button class="btn p sm" onclick="saveHeadcount()" style="margin-top:10px">💾 저장</button>
+      </div>
+      <div class="card mb14">
+        <div class="ct">조직도 파일 업로드</div>
+        <div class="cs">팀-실-본부-전사 계층 구조 파일</div>
+        <div class="uz" onclick="document.getElementById('f-org').click()">
+          <div style="font-size:28px">🏢</div>
+          <p style="font-weight:600;margin:6px 0">조직도 파일 업로드</p>
+          <small style="color:var(--t3)">컬럼: 팀명·실명·본부명·팀원수·팀장명</small>
+        </div>
+        <input type="file" id="f-org" accept=".xlsx,.csv" style="display:none" onchange="handleDataUpload(this,'org')">
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="atab-users">
+    <div class="card mb14">
+      <div class="ct">사용자 목록</div>
+      <button class="btn p sm" onclick="addUser()" style="margin-bottom:10px">+ 사용자 추가</button>
+      <div class="tw"><table class="t"><thead><tr><th>#</th><th>이메일</th><th>이름</th><th>소속</th><th>역할</th><th>상태</th><th>최근접속</th><th>작업</th></tr></thead>
+      <tbody id="tb-users"></tbody></table></div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="atab-media-cfg">
+    <div class="al i">각 매체의 Net/Gross 기준과 Net 비율(광고주 청구 대비 매체 지급 비율)을 설정합니다. 이 설정은 프로모션 목표 달성 계산에 활용됩니다.</div>
+    <div class="card mb14">
+      <div class="ct">매체별 설정</div>
+      <div class="tw"><table class="t" id="tb-media-cfg">
+        <thead><tr><th>매체</th><th>기준</th><th>Net 비율 (Gross→Net)</th><th>팀별목표 허용</th><th>비고</th></tr></thead>
+        <tbody id="tb-media-cfg-body"></tbody>
+      </table></div>
+      <button class="btn p sm" onclick="saveMediaCfg()" style="margin-top:10px">💾 설정 저장</button>
+    </div>
+  </div>
+
+  <div class="tab-content" id="atab-margin">
+    <div class="al i">매출수익율(마진율)을 본부/매체별로 설정합니다. 설정 값은 취급고 기반 매출 추정 계산에 활용됩니다.</div>
+    <div class="card mb14">
+      <div class="ct">본부별 평균 수익율</div>
+      <div id="margin-table"></div>
+      <button class="btn p sm" onclick="saveMargins()" style="margin-top:10px">💾 저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 팀 목표 모달 ══════════════════════════════════════════════ -->
+<div id="team-target-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9000;display:none;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:16px;width:640px;max-width:96vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)">
+    <div style="padding:18px 22px;border-bottom:1px solid var(--b);display:flex;justify-content:space-between;align-items:center">
+      <div><div style="font-size:17px;font-weight:700" id="team-target-title">매체 팀별 목표 설정</div><div style="font-size:13px;color:var(--t3)">팀별 세분 목표를 입력하세요</div></div>
+      <button onclick="document.getElementById('team-target-modal').style.display='none'" style="border:none;background:var(--bg);padding:6px 12px;border-radius:6px;cursor:pointer">✕</button>
+    </div>
+    <div style="padding:18px 22px" id="team-target-body"></div>
+  </div>
+</div>
+<!-- ═══ NEW PAGES ═══════════════════════════════════════════════════ -->
+<div class="pg" id="pg-med-ov">
+  <div class="ph"><div class="ph-l"><h1>전체 매체 현황</h1><div class="meta">매체 카테고리별 분석 · 상위 20개 YoY · MoM · 증감요인 상세</div><div class="vb">✓ 검증완료 · 2025.12</div></div></div>
+  <div id="c-med-ov-content"></div>
+</div>
+
+<div class="pg" id="pg-med-google-yt">
+  <div id="c-med-gyt-content"></div>
+</div>
+
+<div class="pg" id="pg-med-subway">
+  <div id="c-med-subway-content"></div>
+</div>
+
+<div class="pg" id="pg-med-nsquare">
+  <div id="c-med-nsquare-content"></div>
+</div>
+
+<div class="pg" id="pg-med-nap-dig">
+  <div id="c-med-nap-dig-content"></div>
+</div>
+
+<div class="pg" id="pg-med-nap-out">
+  <div id="c-med-nap-out-content"></div>
+</div>
+
+<div class="pg" id="pg-med-etc-dig">
+  <div id="c-med-etc-dig-content"></div>
+</div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+const D = {"mt":[53774386897,54214784487,65822521613,62524278208,67372935289,75138902038,76082557866,75324159045,67977752600,79241878275,81462174577,134037749830],"m24":[51975911490,55209458014,55042137866,66847508294,79880522457,78331690630,83569068545,83882106893,69590939285,66633961049,71491466178,102953594045],"bm":{"광고1본부":[24541597512,27797835275,32219639283,31978432672,33467269042,34537247070,36036205791,34584713009,31613549733,34209887093,38899171468,80383570552],"광고2본부":[17810372984,16545786531,18883157141,21001030167,22413648082,25134900489,21435469044,19186688021,21389861001,21715391971,22256788341,29354316192],"광고3본부":[8972755262,6533377453,11254287792,6458724866,8280806267,11927788548,14790930295,16120602489,10868743400,19170033089,15493767697,19881767087],"미디어본부":[397220162,1387954652,1684622516,1182004212,1169748918,1414238741,1637569312,2685160773,1568885937,1603150885,2396826144,2129611961],"플랫폼사업본부":[2052440976,1949830577,1780814881,1904086292,2041462981,2124727190,2182383423,2746994752,2536712529,2543415238,2415620928,2288484038]},"td":{"광고1본부-1실-1팀":{"팀명":"황연하팀","m":[1634556954,2177849139,1618926594,1554913929,3097816193,1212199813,2289972638,2001865492,1452817611,2013364736,1738174935,5678495478]},"광고1본부-1실-2팀":{"팀명":"김진영팀","m":[3085201244,3139485782,4683595272,3269247330,2917552844,2798517412,3390930258,2750274877,2294269964,3216891874,3308293584,4877521892]},"광고1본부-1실-3팀":{"팀명":"이태석팀","m":[5700650753,5809416060,6336833037,5762699094,6399931623,4790029046,5392886500,5099180966,7128463232,4715056091,7069837729,5209613018]},"광고1본부-1실-넥서스팀":{"팀명":"넥서스팀","m":[0,15706667,16287891,21416266,153987311,185610320,122232727,147479402,214572227,449448183,401179476,592399198]},"광고1본부-2실-4팀":{"팀명":"이창민팀","m":[700485544,996615380,1655876508,1802262182,1681426269,4438368813,2137353164,2972972212,1016522985,2394579801,3370811712,3551625642]},"광고1본부-2실-5팀":{"팀명":"박연주팀","m":[1175091260,949221383,1911581061,1358600619,1146329869,1759468677,1442103705,1984023322,3120406139,2963872009,2765356096,7073959912]},"광고1본부-2실-6팀":{"팀명":"김종섭팀","m":[718177788,792628252,2404080084,890911661,734707915,1360024039,1223530568,1325934175,1560516545,1703645184,2086320705,4266012621]},"광고1본부-3실-7팀":{"팀명":"원준호팀","m":[2318253182,2464034419,2076833015,2810439553,4643926960,3768393801,2250637332,1206960356,1350994330,1781669034,2317758195,2543291125]},"광고1본부-3실-8팀":{"팀명":"유혜민팀","m":[1185809591,3577337452,2282048523,2441156149,2491105484,3288946213,3987547902,3782405356,2522511330,2263461712,2167638560,3850461443]},"광고1본부-3실-9팀":{"팀명":"부현석팀","m":[828549550,472604589,2590404809,4895515231,1734647284,567012508,501999685,291527611,1972386861,1412746817,1782376982,1963518013]},"광고1본부-4실-11팀":{"팀명":"황은주팀","m":[1747972361,1135523017,2206491491,1800521692,933951860,1714646861,1878034245,1145208916,820997273,1090533410,756710969,4526830176]},"광고1본부-4실-12팀":{"팀명":"임배현팀","m":[3715915595,3817058741,2219397379,3273618254,5185954070,6148190934,9151164180,8298164270,5880696063,8047775129,8244817517,33721615652]},"광고1본부-4실-13팀":{"팀명":"김정인팀","m":[1730933690,2450354394,2217283618,2097130712,2345931360,2505838634,2267812889,3578716054,2278395174,2156843113,2889895009,2528226382]},"광고2본부-5실-1팀":{"팀명":"박민용팀","m":[3122739384,2709508707,3224728456,3307543614,3441047109,3188221974,3106153675,3146636300,2997921632,3089672197,3526940445,3565066843]},"광고2본부-5실-2팀":{"팀명":"이수진팀","m":[1950833060,797025998,3394281610,1371068814,1754809106,2180026541,2298138974,1143940586,1579450790,1198961398,1648019869,3619128909]},"광고2본부-5실-3팀":{"팀명":"김선영팀","m":[4565402689,4102801691,5062459669,5302574078,5237601481,5056644791,4970933493,4179487897,5556639509,6135560676,4934834697,5243952057]},"광고2본부-5실-4팀":{"팀명":"최경미팀","m":[1719920188,2596573070,1546059726,2886961349,1983795943,2782966076,2570522028,2659400884,2405637976,2222427306,2505126443,2198770228]},"광고2본부-6실-5팀":{"팀명":"김웅근팀","m":[2355844607,1857972745,1603282981,2578131356,2462187504,4651849055,2279837790,2369668064,2122399928,2907826796,2059539796,4485004233]},"광고2본부-6실-6팀":{"팀명":"장태준팀","m":[1307414684,1543180866,1252940332,165203014,428230560,555344313,672514808,881558311,1032323067,750928533,1684426471,1597361432]},"광고2본부-6실-7팀":{"팀명":"우희철팀","m":[2788218373,2935975240,2795354368,4010307269,5853170932,4922582403,3592072526,2627299928,3930707151,3664876873,4386811083,6881548914]},"광고2본부-6실-MX팀":{"팀명":"MX팀","m":[0,2748214,4050000,1379240672,1252805447,1797265337,1945295749,2178696051,1764780948,1745138192,1511089537,1763483576]},"광고3본부-C레벨 컨설팅실-전략&컨설팅1팀":{"팀명":"박지숙팀","m":[433884363,369630719,1693317078,255328954,200208556,629069068,540237778,988447970,863255173,966061895,1512642006,2130941485]},"광고3본부-C레벨 컨설팅실-전략&컨설팅2팀":{"팀명":"김수연팀","m":[0,0,0,13837530,164181375,613585593,782767160,568609288,1318955102,1098066415,3376423347,2190701546]},"광고3본부-C레벨 컨설팅실-퍼포먼스전략팀":{"팀명":"김동현팀","m":[1500269875,1235786433,483521593,311364482,149964012,336024050,533275569,416562874,296145013,828439404,12727272,0]},"광고3본부-C레벨 컨설팅실-DOOH전략팀":{"팀명":"이선미팀","m":[598564888,567422402,672376571,624062169,1035088052,1656660588,2115259273,876964905,693864809,1200693285,1176707104,1512259490]},"광고3본부-C레벨 컨설팅실-글로벌전략1팀":{"팀명":"이지혜팀","m":[1386621201,99261978,606408569,821330798,1080688535,3017198228,1252604060,2070575150,2210579422,2256118385,671109742,2169111121]},"광고3본부-C레벨 컨설팅실-글로벌전략2팀":{"팀명":"홍민영팀","m":[273593194,39993432,57189314,188458249,31175928,218976314,3895567573,2046270105,493847485,317854180,1034516436,353889532]},"광고3본부-모바일마케팅실-모바일마케팅1팀":{"팀명":"이범희팀","m":[1963121654,3118187067,5936304756,2796689932,4357891499,3798578624,4070105177,6075821444,2317713439,9752644796,4222608372,2162935885]},"광고3본부-모바일마케팅실-모바일마케팅2팀":{"팀명":"윤기숙팀","m":[2816700088,1103095422,1805169911,1447652752,1261608310,1657696083,1601113705,3077350753,2674382957,2750154729,3487033418,9361928028]},"미디어총괄-미디어본부-미디어사업전략실-OOH매체사업팀":{"팀명":"OOH매체사업팀","m":[36136000,22500000,22500000,0,22500000,38483000,91009000,101720000,59210000,72485000,32816000,45150000]},"미디어총괄-미디어본부-미디어기획실-미디어기획1팀":{"팀명":"이승문팀","m":[0,0,0,0,0,0,0,0,0,4924198,18933430,0]},"미디어총괄-미디어본부-미디어기획실-미디어기획2팀":{"팀명":"현은희팀","m":[21658571,15490543,3042185,6079737,5850592,2580110,3500687,16956839,30262591,23678797,48107255,21386312]},"미디어총괄-미디어본부-MIC-마케팅플랫폼팀":{"팀명":"김선일팀","m":[95711023,65257606,83591301,85563836,70178530,144885061,380719347,1451009440,211076069,217642560,820782654,249749436]},"미디어총괄-플랫폼사업본부-NAP CPS팀":{"팀명":"나원웅팀","m":[757471934,675619229,642257445,842437194,980821722,884013396,845411689,1310531231,1076397802,919556417,830756998,820478999]},"미디어총괄-플랫폼사업본부-NAP ADX팀":{"팀명":"김가원팀","m":[0,0,568478934,447370137,448323732,511747396,606406606,698683526,665041342,642049986,986520304,965679725]},"미디어총괄-플랫폼사업본부-NAP REWARD팀":{"팀명":"진나영팀","m":[294411522,299226069,255336780,303286789,294641312,442343831,459758395,464532670,465509199,697502087,453534596,279211310]},"미디어총괄-플랫폼사업본부-NAP DSP팀":{"팀명":"선재영팀","m":[434774708,470197131,314741722,310992172,317676215,286622567,270806733,273247325,329285289,281657634,144809030,223114004]},"미디어총괄-플랫폼사업본부-플랫폼사업1실-ADX팀":{"팀명":"김가원팀","m":[504636999,503451216,0,0,0,0,0,0,0,0,0,0]},"미디어총괄-플랫폼사업본부-AI LAB-데이터사이언스팀":{"팀명":"김관수팀","m":[60000000,0,0,0,0,0,0,0,478897,2649114,0,0]},"미디어총괄-플랫폼사업본부-플랫폼사업1실-SSP팀":{"팀명":"한수민팀","m":[1145813,1336932,0,0,0,0,0,0,0,0,0,0]}},"md":{"Google":{"d25":43095305455,"d24":33188196714,"top":["넥슨","문화체육관광부","LG전자(글로벌)"]},"Naver":{"d25":15196163283,"d24":15649285637,"top":["넥슨","엘지전자","ELEMENTARYINNOVATIONPTE.LTD."]},"Facebook":{"d25":10890315513,"d24":9174048755,"top":["문화체육관광부","넥슨","엘지전자"]},"kakao":{"d25":8679580470,"d24":8798707829,"top":["ELEMENTARYINNOVATIONPTE.LTD.","샤넬 유한회사","넥슨"]},"NAP":{"d25":6560251084,"d24":2830339088,"top":["주식회사 지마켓","쿠팡","REMERGE"]},"Netflix":{"d25":4115071198,"d24":4539319616,"top":["넥슨","넥슨게임즈","한샘"]},"moloco":{"d25":3726847589,"d24":265628187,"top":["넥슨","크래프톤","넷마블"]},"tiktok":{"d25":3562344675,"d24":900606986,"top":["넥슨","LG전자(글로벌)","더블유컨셉코리아"]},"appier":{"d25":2007560989,"d24":458620449,"top":["넥슨","워시스왓","넷마블"]},"daangn":{"d25":1675126391,"d24":470505827,"top":["ELEMENTARYINNOVATIONPTE.LTD.","Villa MOZAIQ","위버스마인드"]},"subway":{"d25":1640679236,"d24":0,"top":["주식회사 에스에스지닷컴","로앤컴퍼니","밝은희망안과"]},"apple":{"d25":1448994540,"d24":138752420,"top":["넥슨","넷마블","다이닝브랜즈그룹"]},"tving":{"d25":1389300362,"d24":0,"top":["문화체육관광부","케이티","넥슨"]},"Persona.ly":{"d25":1200775061,"d24":73700520,"top":["넥슨"]},"Criteo":{"d25":1146929566,"d24":441955683,"top":["넥슨","LG전자(글로벌)","롯데렌탈"]},"엔스퀘어":{"d25":1054369345,"d24":801140390,"top":["보건복지부","에프알엘코리아","삼성카드"]},"naver_shopping":{"d25":779073679,"d24":654655852,"top":["엘지전자","대명유통","주식회사 씨디에스"]},"Coupang":{"d25":725929741,"d24":877835616,"top":["엘지전자","HP","(주)티앤티정보"]},"venatus":{"d25":720600000,"d24":240367797,"top":["넥슨","(주)스마일게이트홀딩스 메가포트 지점","크래프톤"]},"SMR":{"d25":708251652,"d24":1452896429,"top":["문화체육관광부","사회복지공동모금회","중소기업은행"]}},"ad":{"넥슨":{"d25":38538354404,"d24":15399666393,"rank":1},"엘지전자":{"d25":5853350330,"d24":7641451936,"rank":2},"문화체육관광부":{"d25":4876570245,"d24":4671495444,"rank":3},"ELEMENTARYINNOVATIONPTE.LTD.":{"d25":2934222799,"d24":3925495802,"rank":4},"LG전자(글로벌)":{"d25":2791700446,"d24":750000001,"rank":5},"샤넬 유한회사":{"d25":2502877552,"d24":2153739047,"rank":6},"넷마블":{"d25":1890329301,"d24":1004421311,"rank":7},"케이티":{"d25":1788761656,"d24":699002043,"rank":8},"주식회사 지마켓":{"d25":1732744133,"d24":1150175960,"rank":9},"월드비전":{"d25":1555989731,"d24":1045130554,"rank":10},"넷플릭스":{"d25":1384273300,"d24":38250000,"rank":11},"이엘씨에이":{"d25":1245398765,"d24":1101128260,"rank":12},"에르메스코리아(유)":{"d25":1240940000,"d24":965650000,"rank":13},"더블유컨셉코리아":{"d25":1194083874,"d24":0,"rank":14},"중소기업은행":{"d25":1154771769,"d24":56210400,"rank":15},"국민연금공단":{"d25":1038308948,"d24":904689424,"rank":16},"월트디즈니컴퍼니코리아":{"d25":936990106,"d24":3466713610,"rank":17},"주식회사 달바글로벌":{"d25":935956580,"d24":1017684278,"rank":18},"쿠팡":{"d25":911609209,"d24":1053740353,"rank":19},"한양사이버대학교":{"d25":879555094,"d24":810655573,"rank":20}},"ag":{"kpf":{"d25":21140563201,"d24":14042163599,"type":"기타","top":["문화체육관광부","중소기업은행","국민연금공단"]},"HSAD":{"d25":8713679312,"d24":8443852250,"type":"종합광고대행사","top":["엘지전자","넥슨","LG전자(글로벌)"]},"TBWA":{"d25":8075832604,"d24":4695049233,"type":"종합광고대행사","top":["넥슨","샤넬 유한회사","애플"]},"Cheil":{"d25":5564506535,"d24":3821986084,"type":"종합광고대행사","top":["케이티","더블유컨셉코리아","동서식품"]},"PHDKorea":{"d25":2132657078,"d24":1970354842,"type":"종합광고대행사","top":["HP","버버리코리아","미쉐린코리아"]},"아이프로스펙트코리아":{"d25":2098400967,"d24":2466397761,"type":"종합광고대행사","top":["보테가베네타코리아","구찌","케어링와치앤주얼리코리아 주식회사"]},"Innocean":{"d25":1985730736,"d24":3761751475,"type":"종합광고대행사","top":["기아 주식회사","동원에프앤비","한샘"]},"two rabbit":{"d25":1851971300,"d24":745338013,"type":"종합광고대행사","top":["넷플릭스","롯데컬처웍스"]},"지니앤솔루션":{"d25":1361433208,"d24":1485290491,"type":"디지털대행사","top":["더파인 프리미엄","(주)애드마이비지니스","(주)초이스컴퍼니"]},"Havas Worldwide":{"d25":1256171165,"d24":1074092764,"type":"종합광고대행사","top":["에르메스코리아(유)","푸마","한국쉘석유(주)"]},"(주)와이위":{"d25":997687069,"d24":0,"type":"","top":["한양사이버대학교","한양사이버대학원","한국스포츠레저"]},"Eastercom":{"d25":958843484,"d24":1080721263,"type":"디지털대행사","top":["넥슨","블루포션게임즈㈜","카카오게임즈"]},"애드커넥스":{"d25":925726310,"d24":526583869,"type":"디지털대행사","top":["현대해상","매일유업","(주)드림어스컴퍼니"]},"주식회사 프리엠컴퍼니":{"d25":909004261,"d24":0,"type":"","top":["월트디즈니컴퍼니코리아","네파","WE11DONE"]},"에스엠컬처앤콘텐츠 광고사업부문":{"d25":865941166,"d24":525677812,"type":"종합광고대행사","top":["BMW","한화손해보험","하나은행"]},"keystone":{"d25":796812987,"d24":27601471,"type":"디지털대행사","top":["넷마블","카카오게임즈","넥슨"]},"돌고래유괴단":{"d25":782744692,"d24":310574153,"type":"기타","top":["HD현대","라이나생명","멋쟁이사자처럼"]},"Emnet":{"d25":739628890,"d24":321550793,"type":"디지털대행사","top":["코스알엑스","씨제이제일제당","일룸"]},"chai":{"d25":738435756,"d24":344415030,"type":"디지털대행사","top":["지엔푸드","바비톡","에스케이텔레콤"]},"펑타이그레이터차이나":{"d25":731257156,"d24":1373584865,"type":"종합광고대행사","top":["삼성전자","동서식품","새마을금고중앙회"]}},"ind":{"게임":{"d25":42111834163,"d24":19147296620},"단체":{"d25":20896233966,"d24":15070852213},"패션/화장품":{"d25":12365630653,"d24":11443469123},"가전":{"d25":9312844322,"d24":7945717386},"쇼핑몰":{"d25":8514683612,"d24":7355305269},"금융":{"d25":6148909604,"d24":3746109438},"식음료":{"d25":4835954406,"d24":6788693602},"기타":{"d25":4173734114,"d24":4065918373},"의료/건강":{"d25":4129832806,"d24":4995984502},"방송/통신서비스":{"d25":3902737062,"d24":1366215398},"앱/사이트":{"d25":3853557260,"d24":5485291829},"수송":{"d25":3338146675,"d24":5428129508},"주택/가구":{"d25":2528492142,"d24":1058743563},"교육":{"d25":2464306010,"d24":1445977674},"문화/예술":{"d25":2296237528,"d24":4894701155},"컴퓨터":{"d25":1069617227,"d24":908440705},"생활/잡화":{"d25":1059269262,"d24":790753800},"관광/레저":{"d25":1035729017,"d24":1015993887}}};
+
+const MINFO={
+  Google:{color:'#4285f4',icon:'G',label:'Google Ads / UAC',mkey:'Google',comment:'12월 430.9억(+104.4% MoM, +29.9% YoY). 넥슨·문화부·LG전자 글로벌이 Top3. 게임 앱 설치 UAC 캠페인 폭증. 1월 Google Q1 인센티브 활용 필수. 넥슨 종료 시 200억대로 급락 예상.'},
+  youtube:{color:'#ff0000',icon:'▶',label:'YouTube 브랜딩/동영상',mkey:null,comment:'YouTube는 Google Ads 집계에 포함됩니다. Google UAC 집행 중 YouTube 지면 노출이 상당 비중을 차지. 넥슨 게임 트레일러·글로벌 UA 캠페인의 핵심 채널. 단독 집계 데이터는 Google 탭 참조.'},
+  Naver:{color:'#03c75a',icon:'N',label:'Naver GFA / 쇼핑',mkey:'Naver',comment:'12월 152.0억(-2.9% YoY). 전반적 점유율 하락 추세. 넥슨·LG전자·ELEMENTARY Top3. GFA 중심 유지되나 검색광고 감소가 전체 하락 견인.'},
+  Facebook:{color:'#1877f2',icon:'f',label:'Meta (Facebook+Instagram)',mkey:'Facebook',comment:'12월 108.9억(+82.8% MoM, +18.7% YoY). 문화부·넥슨·LG전자 Top3. 릴스 광고 수요 증가로 회복세. 글로벌 게임 + 공공기관 동시 집행 특징.'},
+  kakao:{color:'#FEE500',icon:'K',label:'카카오모먼트',mkey:'kakao',comment:'12월 86.8억(-1.4% YoY). ELEMENTARY·샤넬·넥슨 Top3. 카카오 광고 플랫폼 성장 정체. 국내 이커머스·명품·게임 집중. 카카오모먼트 개편으로 단가 상승.'},
+  tiktok:{color:'#010101',icon:'T',label:'TikTok (바이딩/브랜드)',mkey:'tiktok',comment:'12월 35.6억(+574.2% MoM, +295.5% YoY). 넥슨·LG전자글로벌·더블유컨셉 Top3. 글로벌 게임 영상광고 폭발적 성장. 2026년 핵심 성장 매체. 영상 크리에이티브 역량 강화 필요.'},
+  x:{color:'#1DA1F2',icon:'X',label:'X (구 Twitter)',mkey:null,comment:'X(Twitter)는 2025년 12월 기준 나스미디어 집계 데이터에 별도 분리 집계 없음. 일부 글로벌 캠페인 광고주가 X를 집행하나 물량이 미미하여 기타 매체 포함. 2026년 집계 기준 재검토 예정.'},
+  Netflix:{color:'#e50914',icon:'▶',label:'Netflix 광고형 구독',mkey:'Netflix',comment:'12월 41.15억(+113% MoM, -9.3% YoY). 넥슨·넥슨게임즈·한샘 Top3. CTV 광고 시장 확대. 넥슨이 넷플릭스를 게임광고 채널로 활용. 프리미엄 광고 단가 높음.'},
+  moloco:{color:'#6366f1',icon:'M',label:'Moloco (모바일 UA)',mkey:'moloco',comment:'12월 37.27억(+367% MoM, +1303% YoY). 넥슨·크래프톤·넷마블 Top3. 모바일 게임 UA 전용. 2025년 가장 빠르게 성장한 매체. 게임사 집중 특성상 1월 급감 예상.'},
+  tving:{color:'#fe5252',icon:'T',label:'Tving OTT 광고',mkey:'tving',comment:'12월 13.89억(신규·2024년 집행 없음). 문화부·KT·넥슨 Top3. OTT 광고 시장 신규 진입. 국내 OTT 1위. 설 특집·드라마 시즌 광고 수요 기대. 성장 잠재력 높은 매체.'},
+  SMR:{color:'#ff6b35',icon:'S',label:'SMR 방송사 디지털',mkey:'SMR',comment:'12월 7.08억(-51.3% YoY). 방송사 디지털 광고 감소 추세 반영. 문화부·사회복지공동모금회·중기은행 Top3. 공공기관 집중. SMR 중요도 하락 중.'},
+  Criteo:{color:'#f36f21',icon:'C',label:'Criteo 리타게팅/커머스',mkey:'Criteo',comment:'12월 11.47억(+159.6% YoY). 넥슨·LG전자(글로벌)·롯데렌탈 Top3. 리타게팅·커머스 매체 성장. 게임 글로벌 + 이커머스 동시 집행 특징. 쿠키리스 대응으로 First-party 데이터 활용.'},
+  appier:{color:'#7c3aed',icon:'A',label:'Appier (AI 마케팅)',mkey:'appier',comment:'12월 20.08억(+337.4% YoY). 넥슨·워시스왓·넷마블 Top3. AI 기반 퍼포먼스 매체. 2025년 급성장. 게임 UA + 이커머스 재타게팅 복합 활용.'},
+  coupang:{color:'#c00100',icon:'C',label:'CoupangPlay / 쿠팡광고',mkey:'Coupang',comment:'12월 7.26억(-17.3% YoY). 엘지전자·HP·티앤티정보 Top3. 쿠팡 광고 플랫폼. 가전·IT 광고주 집중. 쿠팡 자사 트래픽 활용 리테일미디어 성장 중.'},
+  apple:{color:'#555555',icon:'',label:'Apple Search Ads',mkey:'apple',comment:'12월 14.49억(+944.9% YoY). 넥슨·넷마블·다이닝브랜즈그룹 Top3. App Store 검색광고 급성장. 게임 앱 다운로드 집중. iOS 사용자 타게팅. 2026년 퍼포먼스 매체 핵심 채널로 부상.'},
+  NAP:{color:'#00897b',icon:'N',label:'NAP 자사 플랫폼 (DSP/ADX/CPS)',mkey:'NAP',comment:'12월 65.6억(+131.8% YoY, +27.1% MoM). 지마켓·쿠팡·REMERGE Top3. NAP DSP/ADX/CPS 통합 집계. 이커머스·퍼포먼스 집중. 플랫폼 수익 핵심 동력. 2025년 연간 235억 수준 성장.'}
+};
+
+'use strict';
+
+// Chart.js global defaults - compact reference charts
+if(typeof Chart !== 'undefined' && Chart.defaults && Chart.defaults.font) {
+  Chart.defaults.font.size = 12;
+  Chart.defaults.font.family = "'Segoe UI', sans-serif";
+  try {
+    Chart.defaults.plugins.legend.labels.boxWidth = 10;
+    Chart.defaults.plugins.legend.labels.padding = 8;
+    Chart.defaults.plugins.legend.labels.font = { size: 12 };
+    Chart.defaults.plugins.tooltip.titleFont = { size: 12 };
+    Chart.defaults.plugins.tooltip.bodyFont = { size: 12 };
+  } catch(e) {}
+}
+const ML=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+const GC=['#1a73e8','#1e8e3e','#d93025','#f29900','#9334e6','#00897b','#e52592','#0288d1','#c26401','#2d7d46'];
+const W=1e8;
+const fmt=v=>v>=W?(v/W).toFixed(1)+'억':(v/1e4).toFixed(0)+'만';
+const fmtB=v=>(v/W).toFixed(2)+'억';
+const fmtB1=v=>(v/W).toFixed(1)+'억';
+const pctN=(a,b)=>b>0?((a-b)/b*100):null;
+const yoyChip=(a,b)=>{const v=pctN(a,b);if(v===null)return '<span class="ch b">신규</span>';return v>=0?`<span class="ch g">▲${v.toFixed(1)}%</span>`:`<span class="ch r">▼${Math.abs(v).toFixed(1)}%</span>`;};
+const MEDIA_CAT={
+  digital:['Google','Naver','Facebook','kakao','moloco','tiktok','appier','daangn','apple','Persona.ly','Criteo','naver_shopping','Coupang','venatus'],
+  ott:['Netflix','tving','SMR'],
+  own:['subway','엔스퀘어','NAP'],
+  ooh_etc:[]
+};
+const OWN_OUTDOOR=['subway','엔스퀘어'];
+const OWN_PLATFORM=['NAP'];
+const CAT_LABEL={digital:'디지털',ott:'방송/영상(OTT)',own:'자사매체',ooh_etc:'기타 옥외'};
+const CAT_COLOR={digital:'#1a73e8',ott:'#e50914',own:'#1e8e3e',ooh_etc:'#f29900'};
+const MEDIA_CFG={
+  'Google':{basis:'net',netRatio:0.82,teamTarget:false,color:'#4285f4'},
+  'Naver':{basis:'gross',netRatio:1.0,teamTarget:true,color:'#03c75a'},
+  'Facebook':{basis:'net',netRatio:0.80,teamTarget:false,color:'#1877f2'},
+  'kakao':{basis:'gross',netRatio:1.0,teamTarget:true,color:'#ffcd00'},
+  'moloco':{basis:'net',netRatio:0.78,teamTarget:false,color:'#6c5ce7'},
+  'tiktok':{basis:'gross',netRatio:1.0,teamTarget:false,color:'#000'},
+  'appier':{basis:'net',netRatio:0.79,teamTarget:false,color:'#e74c3c'},
+  'daangn':{basis:'gross',netRatio:1.0,teamTarget:false,color:'#ff6f0f'},
+  'apple':{basis:'net',netRatio:0.85,teamTarget:false,color:'#555'},
+  'Persona.ly':{basis:'net',netRatio:0.78,teamTarget:false,color:'#8e44ad'},
+  'Criteo':{basis:'net',netRatio:0.82,teamTarget:false,color:'#f2613f'},
+  'naver_shopping':{basis:'gross',netRatio:1.0,teamTarget:false,color:'#03c75a'},
+  'Coupang':{basis:'gross',netRatio:1.0,teamTarget:false,color:'#ee2222'},
+  'venatus':{basis:'net',netRatio:0.80,teamTarget:false,color:'#2980b9'},
+  'Netflix':{basis:'net',netRatio:0.83,teamTarget:true,color:'#e50914'},
+  'tving':{basis:'gross',netRatio:1.0,teamTarget:true,color:'#5f0080'},
+  'SMR':{basis:'gross',netRatio:1.0,teamTarget:false,color:'#00a0dc'},
+  'subway':{basis:'gross',netRatio:1.0,teamTarget:false,color:'#2c6bc0'},
+  '엔스퀘어':{basis:'gross',netRatio:1.0,teamTarget:false,color:'#16a085'},
+  'NAP':{basis:'gross',netRatio:1.0,teamTarget:true,color:'#1e8e3e'}
+};
+const MARGINS={'광고1본부':0.082,'광고2본부':0.088,'광고3본부':0.091,'미디어본부':0.125,'플랫폼사업본부':0.180,'전사':0.087};
+const HEADCOUNT={'광고1본부':42,'광고2본부':28,'광고3본부':22,'미디어본부':8,'플랫폼사업본부':12};
+const HC_TOTAL=Object.values(HEADCOUNT).reduce((s,v)=>s+v,0);
+const TARGET_BM={
+  '광고1본부':[280,260,320,300,330,350,360,350,320,350,390,500],
+  '광고2본부':[150,140,170,180,200,220,200,190,200,210,220,280],
+  '광고3본부':[80,70,100,80,90,110,130,140,110,170,150,220],
+  '미디어본부':[5,5,6,6,6,8,8,10,8,10,12,20],
+  '플랫폼사업본부':[18,17,16,17,18,19,19,22,20,21,20,20]
+};
+const TARGET_MT=TARGET_BM['광고1본부'].map((_,i)=>Object.values(TARGET_BM).reduce((s,arr)=>s+(arr[i]||0),0));
+const P={year:2025,qtr:4,month:12};
+const WD={confirmed:[38.5,42.1,48.2,null],proposed:[98.2,112.4,124.6,null],prev_c:[33.1,37.2,41.9,45.3],prev_p:[85.4,99.1,110.2,118.5]};
+function getMonthRange(){if(P.month>0)return[P.month-1,P.month-1];if(P.qtr>0)return[(P.qtr-1)*3,P.qtr*3-1];return[0,11];}
+function sliceSum(arr){const[s,e]=getMonthRange();return arr.slice(s,e+1).reduce((a,b)=>a+b,0);}
+function sliceArr(arr){const[s,e]=getMonthRange();return arr.slice(s,e+1);}
+function getLabels(){const[s,e]=getMonthRange();return ML.slice(s,e+1);}
+function periodStr(){if(P.month>0)return P.year+'년 '+ML[P.month-1];if(P.qtr>0)return P.year+'년 Q'+P.qtr+'('+ML[(P.qtr-1)*3]+'~'+ML[P.qtr*3-1]+')';return P.year+'년 연간';}
+function prevPeriodStr(){return(P.year-1)+'년 '+(P.month>0?ML[P.month-1]:(P.qtr>0?'Q'+P.qtr:'연간'));}
+function getTotalPerf(){const cur=sliceSum(D.mt);const prev=D.m24?sliceSum(D.m24):0;const target=sliceSum(TARGET_MT.map(v=>v*W));return{cur,prev,target,yoy:pctN(cur,prev),achievement:target>0?cur/target:null};}
+function getBonbuPerf(bk){if(!D.bm[bk])return{cur:0,prev:0,target:0,yoy:null,achievement:null,revenue:0,perPerson:0,margin:0.087};const cur=sliceSum(D.bm[bk]);const totalCur=sliceSum(D.mt);const totalPrev=D.m24?sliceSum(D.m24):0;const ratio=totalCur>0?cur/totalCur:0;const prev=totalPrev*ratio;const target=sliceSum((TARGET_BM[bk]||Array(12).fill(0)).map(v=>v*W));const margin=MARGINS[bk]||0.087;const hc=HEADCOUNT[bk]||1;return{cur,prev,target,yoy:pctN(cur,prev),achievement:target>0?cur/target:null,revenue:cur*margin,perPerson:cur/hc,margin};}
+function getMedScaled(mk){const md=D.md[mk];if(!md)return{cur:0,prev:0};const scale=D.mt[11]>0?sliceSum(D.mt)/D.mt[11]:1;const scale24=D.m24&&D.m24[11]>0?sliceSum(D.m24)/D.m24[11]:1;return{cur:md.d25*scale,prev:md.d24>0?md.d24*scale24:0};}
+const CM={};
+function mkChart(id,cfg){const c=document.getElementById(id);if(!c)return;if(CM[id]){try{CM[id].destroy();}catch(e){}delete CM[id];}CM[id]=new Chart(c,cfg);return CM[id];}
+function yoyBadge(a,b){const v=pctN(a,b);if(v===null)return'<span class="kd b">신규</span>';return v>=0?`<span class="kd p">▲${v.toFixed(1)}%</span>`:`<span class="kd n">▼${Math.abs(v).toFixed(1)}%</span>`;}
+function achieveBadge(r){const p=r*100;if(p>=100)return`<span class="kd p">달성 ${p.toFixed(1)}%</span>`;if(p>=80)return`<span class="kd w">달성 ${p.toFixed(1)}%</span>`;return`<span class="kd n">달성 ${p.toFixed(1)}%</span>`;}
+function periodCtx(){return`<div class="period-context"><span class="pc-label">📅 분석기간</span><span class="pc-val">${periodStr()}</span><span class="pc-compare">vs ${prevPeriodStr()}</span></div>`;}
+
+// AUTH
+const USERS=[{email:'admin@nasmedia.co.kr',pw:'admin1234',name:'관리자',role:'임원',team:'경영진',bonbu:'전사'},{email:'boss1@nasmedia.co.kr',pw:'boss1234',name:'광고1본부장',role:'본부장',team:'광고1본부',bonbu:'광고1본부'},{email:'tl1@nasmedia.co.kr',pw:'tl1234',name:'황연하팀장',role:'팀장',team:'광고1본부-1실-1팀',bonbu:'광고1본부'},{email:'member1@nasmedia.co.kr',pw:'m1234',name:'팀원1',role:'팀원',team:'광고1본부-1실-1팀',bonbu:'광고1본부'}];
+let CU=null;
+function doLogin(){const email=document.getElementById('li-email').value,pw=document.getElementById('li-pw').value;const u=USERS.find(u=>u.email===email&&u.pw===pw);if(!u){document.getElementById('li-err').textContent='이메일 또는 비밀번호가 올바르지 않습니다.';return;}CU=u;document.getElementById('login-wrap').style.display='none';document.getElementById('app').style.display='flex';document.getElementById('hd-user-nm').textContent=u.name;document.getElementById('hd-user-ico').textContent=u.name[0];initAll();}
+function doLogout(){CU=null;document.getElementById('login-wrap').style.display='flex';document.getElementById('app').style.display='none';}
+// PERIOD
+function updatePeriodInfo(){const el=document.getElementById('period-info');if(el)el.textContent=periodStr();}
+function selectYear(y,el){P.year=y;document.querySelectorAll('#year-sel .psel').forEach(b=>b.classList.remove('on'));if(el)el.classList.add('on');updatePeriodInfo();reRender();}
+function selectQtr(q,el){P.qtr=q;P.month=0;document.querySelectorAll('#qtr-sel .psel').forEach(b=>b.classList.remove('on'));if(el)el.classList.add('on');const ms=document.getElementById('month-sel');if(ms)ms.value=0;updatePeriodInfo();reRender();}
+function selectMonth(v){P.month=parseInt(v);P.qtr=P.month>0?Math.ceil(P.month/3):0;document.querySelectorAll('#qtr-sel .psel').forEach((b,i)=>{b.classList.toggle('on',P.qtr>0&&i===P.qtr);});updatePeriodInfo();reRender();}
+// NAVIGATION
+let currentMainTab='perf';
+function switchMainTab(tab,el){currentMainTab=tab;document.querySelectorAll('.mtab').forEach(b=>b.classList.remove('on'));if(el)el.classList.add('on');document.getElementById('sb-perf').style.display=tab==='perf'?'':'none';document.getElementById('sb-sales').style.display=tab==='sales'?'':'none';if(tab==='perf')goto('summary',document.getElementById('ni-summary'));else goto('sales-ov',document.getElementById('ni-sales-ov'));}
+function toggleSub(id,el){const s=document.getElementById(id);if(!s)return;s.classList.toggle('open');if(el)el.classList.toggle('open');}
+function goto(id,el){document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.ni,.sni').forEach(n=>n.classList.remove('on'));const pg=document.getElementById('pg-'+id);if(pg)pg.classList.add('on');if(el)el.classList.add('on');renderPage(id);}
+function renderPage(id){
+  if(id==='summary')renderSummary();
+  else if(id==='kpi')renderKpi();
+  else if(id==='monthly')renderMonthly();
+  else if(id==='org-ov')renderOrgOv();
+  else if(id.startsWith('org-')&&id!=='org-ov')renderOrgDetail(id);
+  else if(id==='adv')renderAdv();
+  else if(id==='agency')renderAgency();
+  else if(id==='industry')renderIndustry();
+  else if(id==='med-ov')renderMedOv();
+  else if(id.startsWith('med-'))renderMedPage(id);
+  else if(id==='sales-ov')renderSalesOv();
+  else if(id.startsWith('sales-org-'))renderSalesOrg(id);
+  else if(id==='sales-forecast')renderSalesForecast();
+  else if(id==='sales-nap')renderSalesNap();
+  else if(id==='sales-ooh')renderSalesOoh();
+  else if(id==='sales-media')renderSalesMediaOv();
+  else if(id.startsWith('sales-med-'))renderSalesMediaDetail(id.replace('sales-med-',''));
+  else if(id==='sales-adv')renderSalesAdv();
+  else if(id==='sales-agency')renderSalesAgency();
+  else if(id.startsWith('fc-'))renderFcOv();
+  else if(id==='settings-admin')renderAdmin();
+}
+function reRender(){const all=document.querySelectorAll('.pg');let a=null;all.forEach(p=>{if(p.classList.contains('on'))a=p;});if(a)renderPage(a.id.replace('pg-',''));}
+function switchTab(group,id,el){document.querySelectorAll(`[id^="${group}"]`).forEach(c=>c.classList.remove('on'));if(el){const p=el.closest('.tabs')||el.closest('.tab-bar');if(p)p.querySelectorAll('.tab,.tab-item').forEach(t=>t.classList.remove('on'));}const t=document.getElementById(id);if(t)t.classList.add('on');if(el)el.classList.add('on');}
+
+// ═══ RENDER: SUMMARY ══════════════════════════════════════════════
+function renderSummary(){
+  const pg=document.getElementById('pg-summary');if(!pg)return;
+  const tp=getTotalPerf();const{cur,prev,target,achievement}=tp;
+  const rev=cur*MARGINS['전사'];const prevRev=prev*MARGINS['전사'];
+  const bks=Object.keys(D.bm);const mo=sliceArr(D.mt);const mo24=D.m24?sliceArr(D.m24):mo.map(()=>0);const labs=getLabels();
+  pg.innerHTML=`${periodCtx()}<div class="ph"><div class="ph-l"><h1>Executive Summary</h1><div class="meta">${periodStr()} · 전사 종합 현황</div></div><div class="ph-r"><button class="btn s sm" onclick="openVerify()">⊕ 데이터 검증</button></div></div>
+  <div class="g4">
+    <div class="kpi"><div class="kl">전사 취급고</div><div class="kv">${fmtB1(cur)}</div>${yoyBadge(cur,prev)}</div>
+    <div class="kpi"><div class="kl">전사 매출(추정)</div><div class="kv">${fmtB1(rev)}</div><div>${yoyBadge(rev,prevRev)}<span class="kd e" style="margin-left:4px">수익율 ${(MARGINS['전사']*100).toFixed(1)}%</span></div></div>
+    <div class="kpi"><div class="kl">목표</div><div class="kv">${fmtB1(target)}</div>${achievement?achieveBadge(achievement):'<span class="kd e">목표 미설정</span>'}</div>
+    <div class="kpi"><div class="kl">전사 인당 취급고</div><div class="kv">${fmtB(cur/HC_TOTAL)}</div><span class="kd e">총 ${HC_TOTAL}명</span></div>
+  </div>
+  <div class="g-chart">
+    <div class="card mb14"><div class="ct">월별 취급고 추이</div><div class="cs">${periodStr()} 기준</div><div class="chart-bar-wrap"><canvas id="c-sum-monthly"></canvas></div></div>
+    <div class="card mb14"><div class="ct">본부별 비중</div><div class="chart-pie-wrap"><canvas id="c-sum-bonbu" height="180"></canvas></div></div>
+  </div>
+  <div class="card mb14"><div class="ct">📊 본부별 실적 현황 · ${periodStr()}</div><div class="tw"><table class="bonbu-table"><thead><tr><th style="text-align:left">본부</th><th>취급고</th><th>전년대비</th><th>목표액</th><th>달성률</th><th>수익율</th><th>매출(추정)</th><th>인원</th><th>인당취급고</th></tr></thead><tbody>${(()=>{return Object.keys(D.bm).map(bk=>{const bp=getBonbuPerf(bk);const hc=HEADCOUNT[bk]||1;const ach=bp.achievement?bp.achievement*100:null;const ac=ach==null?'var(--t3)':ach>=100?'#1b5e20':ach>=80?'#e65100':'#c62828';const margin=MARGINS[bk]||MARGINS['전사'];const rev=bp.cur*margin;return '<tr><td class="nm">'+bk+'</td><td style="font-weight:700;color:var(--blue)">'+fmtB1(bp.cur)+'</td><td>'+yoyBadge(bp.cur,bp.prev)+'</td><td style="color:var(--t2)">'+(bp.target?fmtB1(bp.target):'–')+'</td><td style="font-weight:700;color:'+ac+'">'+(ach!=null?ach.toFixed(1)+'%':'–')+'<div class="pm"><div class="pmf" style="width:'+(ach?Math.min(100,ach).toFixed(0):0)+'%;background:'+ac+'"></div></div></td><td style="color:var(--t2)">'+(margin*100).toFixed(1)+'%</td><td style="color:#2e7d32;font-weight:600">'+fmtB1(rev)+'</td><td style="color:var(--t2)">'+hc+'명</td><td>'+fmtB(bp.cur/hc)+'</td></tr>';}).join('');})()}</tbody></table></div></div>
+  </div>
+  <div class="g-pie2">
+    <div class="card mb14"><div class="ct">업종별 비중</div><div class="chart-pie-wrap"><canvas id="c-sum-ind" height="190"></canvas></div></div>
+    <div class="card mb14"><div class="ct">매체 카테고리별 비중</div><div class="chart-pie-wrap"><canvas id="c-sum-cat" height="190"></canvas></div></div>
+  </div>
+  <div class="abox2"><div class="ax-title">📋 ${periodStr()} 전사 종합 인사이트</div><div class="ax-grid"><div class="ax-item"><div class="ax-lbl">📣 광고주 관점</div><div class="ax-txt">상위 광고주 취급고 집중도 과다. 넥슨(게임 UA) 의존 리스크 높음 → 이커머스·금융·뷰티 업종 신규 광고주 파이프라인 확대 필수.</div></div><div class="ax-item"><div class="ax-lbl">🏛 대행사 관점</div><div class="ax-txt">대형 대행사 의존 구조로 수익율 압박. 직접 광고주 비중 확대 및 인하우스 거래 강화로 수익성 개선 여지 있음.</div></div><div class="ax-item"><div class="ax-lbl">📡 매체 관점</div><div class="ax-txt">Google·Naver 양강 집중. OTT 고성장. 자사매체(subway·엔스퀘어·NAP) 비중 확대로 수익율 구조 개선 가능.</div></div><div class="ax-item"><div class="ax-lbl">🎯 캠페인 관점</div><div class="ax-txt">퍼포먼스 캠페인 비중 과다. 브랜딩·CPM 캠페인 확대 시 단가·수익율 동시 개선. 연간계약 광고주 확대 전략 병행.</div></div></div><div class="ax-tags">${cur>=prev?'<span class="ax-tag ok">▲ YoY 성장</span>':'<span class="ax-tag warn">▼ YoY 감소</span>'} ${achievement>=1?'<span class="ax-tag ok">✓ 목표 초과달성</span>':achievement>=0.8?'<span class="ax-tag warn">목표 80%↑</span>':'<span class="ax-tag warn">목표 미달</span>'} <span class="ax-tag info">인당 ${fmtB(cur/HC_TOTAL)}</span><span class="ax-tag info">총원 ${HC_TOTAL}명</span></div></div>`;
+  setTimeout(()=>{
+    mkChart('c-sum-monthly',{type:'bar',data:{labels:labs,datasets:[{type:'bar',label:P.year+'년(억)',data:mo.map(v=>(v/W).toFixed(1)),backgroundColor:mo.map((_,i)=>`rgba(26,115,232,${i===mo.length-1?0.85:0.5})`),borderRadius:3},{type:'line',label:(P.year-1)+'년',data:mo24.map(v=>(v/W).toFixed(1)),borderColor:'#d93025',tension:0.3,fill:false,pointRadius:3}]},options:{maintainAspectRatio:false,responsive:true,plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:12}}}},scales:{y:{ticks:{callback:v=>v+'억'}}}}});
+    mkChart('c-sum-bonbu',{type:'doughnut',data:{labels:bks,datasets:[{data:bks.map(bk=>(sliceSum(D.bm[bk])/W).toFixed(1)),backgroundColor:GC,borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:12},padding:10,usePointStyle:true}}}}});
+    const scale=sliceSum(D.mt)/D.mt[11];
+    const inds=Object.entries(D.ind).sort((a,b)=>b[1].d25-a[1].d25).slice(0,8);
+    mkChart('c-sum-ind',{type:'doughnut',data:{labels:inds.map(([k])=>k),datasets:[{data:inds.map(([,v])=>+(v.d25*scale/W).toFixed(1)),backgroundColor:GC.concat(GC),borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:12},padding:10,usePointStyle:true}}}}});
+    const catVals=Object.entries(MEDIA_CAT).filter(([,v])=>v.length>0).map(([cat,meds])=>({cat,sum:meds.reduce((s,mk)=>s+(D.md[mk]?D.md[mk].d25*scale:0),0),label:CAT_LABEL[cat],color:CAT_COLOR[cat]}));
+    mkChart('c-sum-cat',{type:'doughnut',data:{labels:catVals.map(v=>v.label),datasets:[{data:catVals.map(v=>+(v.sum/W).toFixed(1)),backgroundColor:catVals.map(v=>v.color),borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:12},padding:10,usePointStyle:true}}}}});
+  },100);
+}
+// ═══ KPI ═══════════════════════════════════════════════════════════
+function renderKpi(){
+  const pg=document.getElementById('pg-kpi');if(!pg)return;
+  const tp=getTotalPerf();const{cur,prev,target,achievement}=tp;
+  pg.innerHTML=`${periodCtx()}<div class="ph"><div class="ph-l"><h1>핵심 KPI</h1><div class="meta">${periodStr()}</div></div></div>
+  <div class="g4">
+    <div class="kpi"><div class="kl">전사 취급고</div><div class="kv">${fmtB1(cur)}</div>${yoyBadge(cur,prev)}</div>
+    <div class="kpi"><div class="kl">전사 매출(추정)</div><div class="kv">${fmtB1(cur*MARGINS['전사'])}</div><span class="kd e">수익율 ${(MARGINS['전사']*100).toFixed(1)}%</span></div>
+    <div class="kpi"><div class="kl">목표 달성률</div><div class="kv">${target>0?(cur/target*100).toFixed(1):'–'}<span class="u">%</span></div>${target>0?achieveBadge(cur/target):''}</div>
+    <div class="kpi"><div class="kl">인당 취급고</div><div class="kv">${fmtB(cur/HC_TOTAL)}</div><span class="kd e">${HC_TOTAL}명 기준</span></div>
+  </div>
+  <div class="card mb14"><div class="ct">본부별 KPI (${periodStr()})</div>
+  <div class="tw"><table class="t"><thead><tr><th>본부</th><th class="r">취급고</th><th class="r">매출(추정)</th><th class="r">수익율</th><th class="r">전년대비</th><th class="r">목표달성</th><th class="r">인원</th><th class="r">인당취급고</th><th class="r">인당매출</th></tr></thead><tbody>
+  ${Object.keys(D.bm).map(bk=>{const bp=getBonbuPerf(bk);const hc=HEADCOUNT[bk]||1;return`<tr><td style="font-weight:700">${bk}</td><td class="r hl">${fmtB1(bp.cur)}</td><td class="r" style="color:var(--grn)">${fmtB1(bp.revenue)}</td><td class="r tnum">${(bp.margin*100).toFixed(1)}%</td><td class="r">${yoyBadge(bp.cur,bp.prev)}</td><td class="r">${bp.achievement?achieveBadge(bp.achievement):'<span class="kd e">–</span>'}</td><td class="r">${hc}명</td><td class="r tnum">${fmtB(bp.cur/hc)}</td><td class="r tnum">${fmtB(bp.revenue/hc)}</td></tr>`;}).join('')}
+  </tbody></table></div></div>`;
+
+  (function(){var _p=document.getElementById("pg-kpi");if(_p)_p.innerHTML+=`<div class="abox2 grn"><div class="ax-title">📈 KPI 성과 인사이트</div><div class="ax-grid"><div class="ax-item"><div class="ax-lbl">📣 광고주 관점</div><div class="ax-txt">MoM 급락 구간은 특정 대형 광고주 집행 중단 시그널 가능성. 광고주별 월간 예산 소진 패턴 모니터링으로 이탈 사전 감지.</div></div><div class="ax-item"><div class="ax-lbl">🏛 대행사 관점</div><div class="ax-txt">YoY 성장률 하락 구간에서 신규 대행사 파트너십 통한 신규 광고주 유입 필요. 기존 대행사 취급고 성장 정체 시 관계 재점검.</div></div><div class="ax-item"><div class="ax-lbl">📡 매체 관점</div><div class="ax-txt">성장률 둔화 구간에서 신규 매체 상품 도입(신규 OTT·DOOH·AI 퍼포먼스)으로 취급고 확장 모멘텀 확보.</div></div><div class="ax-item"><div class="ax-lbl">🎯 캠페인 관점</div><div class="ax-txt">월별 성장률 변동성 완화 = 대형 캠페인 분산 집행 전략 필요. 계절성 캠페인 선기획으로 비수기 취급고 방어.</div></div></div><div class="ax-tags"><span class="ax-tag info">MoM 급락 광고주 모니터링</span><span class="ax-tag ok">신규 매체 도입 모멘텀</span></div></div>`;}());
+}
+// ═══ MONTHLY ═══════════════════════════════════════════════════════
+function renderMonthly(){
+  const pg=document.getElementById('pg-monthly');if(!pg)return;
+  pg.innerHTML=`<div class="ph"><div class="ph-l"><h1>월별 추이</h1><div class="meta">2025년 전체 · 전년 대비</div></div></div>
+  <div class="card mb14"><div class="ct">전사 월별 취급고</div><div class="chart-bar-wrap"><canvas id="c-monthly-main"></canvas></div></div>
+  <div class="card mb14"><div class="ct">본부별 월별 추이</div>
+  <div class="tw"><table class="t"><thead><tr><th>본부</th>${ML.map(m=>`<th class="r">${m}</th>`).join('')}<th class="r">합계</th></tr></thead><tbody>
+  ${Object.keys(D.bm).map(bk=>`<tr><td style="font-weight:700">${bk}</td>${D.bm[bk].map(v=>`<td class="r tnum">${(v/W).toFixed(1)}</td>`).join('')}<td class="r hl">${(D.bm[bk].reduce((s,v)=>s+v,0)/W).toFixed(1)}억</td></tr>`).join('')}
+  <tr style="font-weight:700;background:var(--blue-lt)"><td>전사합계</td>${D.mt.map(v=>`<td class="r tnum">${(v/W).toFixed(1)}</td>`).join('')}<td class="r hl">${(D.mt.reduce((s,v)=>s+v,0)/W).toFixed(1)}억</td></tr>
+  </tbody></table></div></div>`;
+  setTimeout(()=>{mkChart('c-monthly-main',{type:'bar',data:{labels:ML,datasets:[{type:'bar',label:'2025년(억)',data:D.mt.map(v=>(v/W).toFixed(1)),backgroundColor:D.mt.map((_,i)=>`rgba(26,115,232,${i===11?0.85:0.4})`),borderRadius:3},{type:'line',label:'2024년',data:D.m24.map(v=>(v/W).toFixed(1)),borderColor:'#d93025',tension:0.3,fill:false,pointRadius:3}]},options:{maintainAspectRatio:false,responsive:true,plugins:{legend:{position:'top'}},scales:{y:{ticks:{callback:v=>v+'억'}}}}});},100);
+}
+// ═══ ORG OV ═══════════════════════════════════════════════════════
+function renderOrgOv(){
+  const pg=document.getElementById('pg-org-ov');if(!pg)return;
+  const tp=getTotalPerf();const bks=Object.keys(D.bm);
+  pg.innerHTML=`${periodCtx()}<div class="ph"><div class="ph-l"><h1>전사 조직 요약</h1><div class="meta">${periodStr()}</div></div></div>
+  <div class="g4">
+    <div class="kpi"><div class="kl">전사 취급고</div><div class="kv">${fmtB1(tp.cur)}</div>${yoyBadge(tp.cur,tp.prev)}</div>
+    <div class="kpi"><div class="kl">전사 매출</div><div class="kv">${fmtB1(tp.cur*MARGINS['전사'])}</div><span class="kd e">수익율 ${(MARGINS['전사']*100).toFixed(1)}%</span></div>
+    <div class="kpi"><div class="kl">총 인원</div><div class="kv">${HC_TOTAL}<span class="u">명</span></div></div>
+    <div class="kpi"><div class="kl">인당 취급고</div><div class="kv">${fmtB(tp.cur/HC_TOTAL)}</div></div>
+  </div>
+  <div class="card mb14"><div class="ct">본부별 현황 (${periodStr()})</div>
+  <div class="tw"><table class="t"><thead><tr><th>본부</th><th class="r">취급고</th><th class="r">비중</th><th class="r">매출(추정)</th><th class="r">수익율</th><th class="r">전년</th><th class="r">YoY</th><th class="r">목표</th><th class="r">달성률</th><th class="r">인원</th><th class="r">인당취급고</th></tr></thead><tbody>
+  ${bks.map(bk=>{const bp=getBonbuPerf(bk);const hc=HEADCOUNT[bk]||1;const share=tp.cur>0?bp.cur/tp.cur:0;return`<tr style="cursor:pointer" onclick="goto('${bk.includes('1')?'org-1':bk.includes('2')?'org-2':bk.includes('3')?'org-3':bk.includes('미디어')?'org-m':'org-p'}',null)"><td style="font-weight:700;color:var(--blue)">${bk}</td><td class="r hl">${fmtB1(bp.cur)}</td><td class="r tnum">${(share*100).toFixed(1)}%</td><td class="r" style="color:var(--grn)">${fmtB1(bp.revenue)}</td><td class="r tnum">${(bp.margin*100).toFixed(1)}%</td><td class="r tg">${fmtB1(bp.prev)}</td><td class="r">${yoyBadge(bp.cur,bp.prev)}</td><td class="r tg">${fmtB1(bp.target)}</td><td class="r">${bp.achievement?achieveBadge(bp.achievement):'–'}</td><td class="r">${hc}명</td><td class="r tnum">${fmtB(bp.cur/hc)}</td></tr>`;}).join('')}
+  </tbody></table></div></div>
+  <div class="card mb14"><div class="ct">본부별 취급고</div><div class="chart-bar-wrap"><canvas id="c-org-ov-bar"></canvas></div></div>`;
+  setTimeout(()=>{mkChart('c-org-ov-bar',{type:'bar',data:{labels:bks,datasets:[{label:P.year+'년',data:bks.map(bk=>(sliceSum(D.bm[bk])/W).toFixed(1)),backgroundColor:GC,borderRadius:4}]},options:{maintainAspectRatio:false,responsive:true,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>v+'억'}}}}});},100);
+}
+// ═══ ORG DETAIL ════════════════════════════════════════════════════
+function renderOrgDetail(id){
+  const pg=document.getElementById('pg-'+id);if(!pg)return;
+  const bkMap={'org-1':'광고1본부','org-2':'광고2본부','org-3':'광고3본부','org-m':'미디어본부','org-p':'플랫폼사업본부'};
+  const bk=bkMap[id];if(!bk)return;
+  const bp=getBonbuPerf(bk);const hc=HEADCOUNT[bk]||1;
+  const teams=Object.entries(D.td).filter(([k])=>k.startsWith(bk)).sort((a,b)=>sliceSum(b[1].m)-sliceSum(a[1].m));
+  pg.innerHTML=`${periodCtx()}<div class="ph"><div class="ph-l"><h1>${bk}</h1><div class="meta">${periodStr()}</div></div></div>
+  <div class="g5">
+    <div class="metric-card"><div class="metric-val">${fmtB1(bp.cur)}</div><div class="metric-lbl">취급고</div></div>
+    <div class="metric-card"><div class="metric-val">${fmtB1(bp.revenue)}</div><div class="metric-lbl">매출(추정)</div></div>
+    <div class="metric-card"><div class="metric-val">${(bp.margin*100).toFixed(1)}%</div><div class="metric-lbl">수익율</div></div>
+    <div class="metric-card"><div class="metric-val">${hc}명</div><div class="metric-lbl">인원수</div></div>
+    <div class="metric-card"><div class="metric-val">${fmtB(bp.cur/hc)}</div><div class="metric-lbl">인당 취급고</div></div>
+  </div>
+  <div class="g3">
+    <div class="kpi"><div class="kl">인당 매출(추정)</div><div class="kv">${fmtB(bp.revenue/hc)}</div></div>
+    <div class="kpi"><div class="kl">전년 동기</div><div class="kv">${fmtB1(bp.prev)}</div>${yoyBadge(bp.cur,bp.prev)}</div>
+    <div class="kpi"><div class="kl">목표 달성률</div><div class="kv">${bp.achievement?(bp.achievement*100).toFixed(1):'–'}<span class="u">%</span></div>${bp.achievement?achieveBadge(bp.achievement):''}</div>
+  </div>
+  <div class="g2">
+    <div class="card mb14"><div class="ct">월별 추이 (전체 12개월)</div><div class="chart-bar-wrap"><canvas id="c-${id}-trend"></canvas></div></div>
+    <div class="card mb14"><div class="ct">팀별 현황 (${periodStr()})</div>
+    <div class="tw mini-table-wrap"><table class="t"><thead><tr><th>팀</th><th class="r">취급고</th><th class="r">연간합계</th><th class="r">비중</th></tr></thead><tbody>
+    ${teams.map(([k,v])=>{const ts=sliceSum(v.m);const ta=v.m.reduce((s,x)=>s+x,0);const nm=v.팀명||k.split('-').pop();return`<tr><td style="font-size:13px">${nm}</td><td class="r hl">${fmtB1(ts)}</td><td class="r tg">${fmtB1(ta)}</td><td class="r tnum">${bp.cur>0?(ts/bp.cur*100).toFixed(1):0}%</td></tr>`;}).join('')}
+    </tbody></table></div></div>
+  </div>`;
+  setTimeout(()=>{mkChart(`c-${id}-trend`,{type:'bar',data:{labels:ML,datasets:[{label:'취급고(억)',data:D.bm[bk].map(v=>(v/W).toFixed(1)),backgroundColor:D.bm[bk].map((_,i)=>`rgba(26,115,232,${i===11?0.85:0.4})`),borderRadius:3}]},options:{maintainAspectRatio:false,responsive:true,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>v+'억'}}}}});},100);
+}
+
+// ═══ ADV / AGENCY / INDUSTRY ══════════════════════════════════════
+function renderAdv(){
+  const pg=document.getElementById('pg-adv');if(!pg)return;
+  const scale=D.mt[11]>0?sliceSum(D.mt)/D.mt[11]:1;
+  const advs=Object.entries(D.ad).sort((a,b)=>a[1].rank-b[1].rank).slice(0,20);
+  const total=sliceSum(D.mt);
+  pg.innerHTML=`${periodCtx()}<div class="ph"><div class="ph-l"><h1>광고주 분석</h1><div class="meta">${periodStr()}</div></div></div>
+  <div class="card mb14"><div class="ct">광고주 Top 20 (${periodStr()})</div>
+  <div class="tw"><table class="t"><thead><tr><th>#</th><th>광고주</th><th class="r">취급고</th><th class="r">비중</th><th class="r">매출(추정)</th><th class="r">수익율</th><th class="r">전년</th><th class="r">YoY</th></tr></thead><tbody>
+  ${advs.map(([nm,v])=>{const cur=v.d25*scale;const prev=v.d24>0?v.d24*(D.m24&&D.m24[11]>0?sliceSum(D.m24)/D.m24[11]:1):0;const rev=cur*MARGINS['전사'];return`<tr><td><span class="rk ${v.rank<=3?['g1','g2','g3'][v.rank-1]:''}">${v.rank}</span></td><td style="font-weight:600">${nm}</td><td class="r hl">${fmtB1(cur)}</td><td class="r tnum">${total>0?(cur/total*100).toFixed(1):0}%</td><td class="r" style="color:var(--grn)">${fmtB1(rev)}</td><td class="r tnum">${(MARGINS['전사']*100).toFixed(1)}%</td><td class="r tg">${v.d24>0?fmtB1(prev):'–'}</td><td class="r">${v.d24>0?yoyBadge(cur,prev):'<span class="kd b">신규</span>'}</td></tr>`;}).join('')}
+  </tbody></table></div></div>`;
+
+  (function(){var _p=document.getElementById("pg-adv");if(_p)_p.innerHTML+=`<div class="abox2"><div class="ax-title">🏷 광고주 분석 인사이트</div><div class="ax-grid"><div class="ax-item"><div class="ax-lbl">📣 광고주 관점</div><div class="ax-txt">상위 1위 광고주 집중도 과다 → 이탈 시 전사 직격. 상위 20개 광고주가 전체 약 56%. 이커머스·금융·뷰티 신규 광고주 파이프라인 시급.</div></div><div class="ax-item"><div class="ax-lbl">🏛 대행사 관점</div><div class="ax-txt">직접 대행 vs 간접(대행사 통한) 비중 분석 필요. 직접거래 비중 확대 시 수익율 즉각 개선. 인하우스 전환 광고주 우선 타겟.</div></div><div class="ax-item"><div class="ax-lbl">📡 매체 관점</div><div class="ax-txt">광고주별 집행 매체 편중 분석. Google UAC 집중 광고주에게 Moloco·TikTok·NAP 추가 제안으로 취급고 확장 기회.</div></div><div class="ax-item"><div class="ax-lbl">🎯 캠페인 관점</div><div class="ax-txt">게임 UA(퍼포먼스) 광고주 비중 과다. 동일 광고주에게 브랜딩 캠페인 제안 → 단가 상향 및 수익율 개선. 연간 마스터 계약 확대로 영업 안정성 확보.</div></div></div><div class="ax-tags"><span class="ax-tag warn">⚠ 단일 광고주 집중 리스크</span><span class="ax-tag ok">신규 광고주 파이프라인</span><span class="ax-tag info">직접거래 확대 수익율↑</span></div></div>`;}());
+}
+function renderAgency(){
+  const pg=document.getElementById('pg-agency');if(!pg)return;
+  const scale=D.mt[11]>0?sliceSum(D.mt)/D.mt[11]:1;
+  const scale24=D.m24&&D.m24[11]>0?sliceSum(D.m24)/D.m24[11]:1;
+  const ags=Object.entries(D.ag).sort((a,b)=>b[1].d25-a[1].d25).slice(0,20);
+  const total=sliceSum(D.mt);
+  pg.innerHTML=`${periodCtx()}<div class="ph"><div class="ph-l"><h1>대행사 분석</h1><div class="meta">${periodStr()}</div></div></div>
+  <div class="card mb14"><div class="ct">대행사 Top 20 (${periodStr()})</div>
+  <div class="tw"><table class="t"><thead><tr><th>#</th><th>대행사</th><th>유형</th><th class="r">취급고</th><th class="r">비중</th><th class="r">매출(추정)</th><th class="r">수익율</th><th class="r">전년</th><th class="r">YoY</th><th>주요 광고주</th></tr></thead><tbody>
+  ${ags.map(([nm,v],i)=>{const cur=v.d25*scale;const prev=v.d24>0?v.d24*scale24:0;const rev=cur*MARGINS['전사'];return`<tr><td><span class="rk ${i<3?['g1','g2','g3'][i]:''}">${i+1}</span></td><td style="font-weight:600">${nm}</td><td><span class="ch gr">${v.type||'기타'}</span></td><td class="r hl">${fmtB1(cur)}</td><td class="r tnum">${total>0?(cur/total*100).toFixed(1):0}%</td><td class="r" style="color:var(--grn)">${fmtB1(rev)}</td><td class="r tnum">${(MARGINS['전사']*100).toFixed(1)}%</td><td class="r tg">${v.d24>0?fmtB1(prev):'–'}</td><td class="r">${v.d24>0?yoyBadge(cur,prev):'<span class="kd b">신규</span>'}</td><td style="font-size:12.5px;color:var(--t2)">${(v.top||[]).slice(0,2).join(', ')}</td></tr>`;}).join('')}
+  </tbody></table></div></div>`;
+
+  (function(){var _p=document.getElementById("pg-agency");if(_p)_p.innerHTML+=`<div class="abox2"><div class="ax-title">🏛 대행사 분석 인사이트</div><div class="ax-grid"><div class="ax-item"><div class="ax-lbl">📣 광고주 관점</div><div class="ax-txt">동일 광고주 다수 대행사 중복 집행 → 통합 창구 역할로 광고주 직접 관계 강화. 대행사 교체 시 선제 대응 체계 구축 필요.</div></div><div class="ax-item"><div class="ax-lbl">🏛 대행사 관점</div><div class="ax-txt">대형 대행사 의존 시 협상력 약화·수익율 압박. 독립계·인하우스 비중 확대로 수익성 개선. 광고주 직접거래 전환 기회 상시 모니터링.</div></div><div class="ax-item"><div class="ax-lbl">📡 매체 관점</div><div class="ax-txt">대행사별 취급 매체 편중 파악. Google/Meta 집중 대행사에게 NAP·OTT 신규 매체 제안으로 포트폴리오 다변화 유도.</div></div><div class="ax-item"><div class="ax-lbl">🎯 캠페인 관점</div><div class="ax-txt">퍼포먼스 전문 대행사 → 브랜딩 캠페인 확장 제안. CPC/CPA 위주 → CPM·고단가 상품 믹스 확대로 대행사당 수익율 개선.</div></div></div><div class="ax-tags"><span class="ax-tag warn">대형 대행사 의존 리스크</span><span class="ax-tag ok">직접거래·인하우스 전환</span><span class="ax-tag info">신규 매체 포트폴리오 제안</span></div></div>`;}());
+}
+function renderIndustry(){
+  const pg=document.getElementById('pg-industry');if(!pg)return;
+  const scale=D.mt[11]>0?sliceSum(D.mt)/D.mt[11]:1;
+  const scale24=D.m24&&D.m24[11]>0?sliceSum(D.m24)/D.m24[11]:1;
+  const inds=Object.entries(D.ind).sort((a,b)=>b[1].d25-a[1].d25);
+  const total=sliceSum(D.mt);
+  pg.innerHTML=`${periodCtx()}<div class="ph"><div class="ph-l"><h1>업종 분석</h1><div class="meta">${periodStr()}</div></div></div>
+  <div class="g2">
+    <div class="card mb14"><div class="ct">업종별 비중</div><div class="chart-pie-wrap"><canvas id="c-ind-pie" height="200"></canvas></div></div>
+    <div class="card mb14"><div class="ct">업종별 현황 (${periodStr()})</div>
+    <div class="tw"><table class="t"><thead><tr><th>#</th><th>업종</th><th class="r">취급고</th><th class="r">비중</th><th class="r">전년</th><th class="r">YoY</th></tr></thead><tbody>
+    ${inds.map(([nm,v],i)=>{const cur=v.d25*scale;const prev=v.d24>0?v.d24*scale24:0;return`<tr><td><span class="rk ${i<3?['g1','g2','g3'][i]:''}">${i+1}</span></td><td style="font-weight:600">${nm}</td><td class="r hl">${fmtB1(cur)}</td><td class="r tnum">${total>0?(cur/total*100).toFixed(1):0}%</td><td class="r tg">${v.d24>0?fmtB1(prev):'–'}</td><td class="r">${v.d24>0?yoyBadge(cur,prev):'<span class="kd b">신규</span>'}</td></tr>`;}).join('')}
+    </tbody></table></div></div>
+  </div>`;
+
+  (function(){var _p=document.getElementById("pg-industry");if(_p)_p.innerHTML+=`<div class="abox2 grn"><div class="ax-title">🏭 업종 분석 인사이트</div><div class="ax-grid"><div class="ax-item"><div class="ax-lbl">📣 광고주 관점</div><div class="ax-txt">게임 업종 집중으로 성수기(연말·신작) 의존도 高 → 금융·이커머스·뷰티·여행 업종 신규 광고주 발굴로 비수기 방어.</div></div><div class="ax-item"><div class="ax-lbl">🏛 대행사 관점</div><div class="ax-txt">게임 전문 대행사 편중. 금융·이커머스 전문 대행사와 신규 파트너십 구축 시 업종 포트폴리오 균형화 가능.</div></div><div class="ax-item"><div class="ax-lbl">📡 매체 관점</div><div class="ax-txt">업종별 선호 매체 차이 활용: 게임→퍼포먼스, 금융·자동차→OTT·DOOH 브랜딩, 뷰티→TikTok·Meta. 업종 확장 시 매체도 함께 확장.</div></div><div class="ax-item"><div class="ax-lbl">🎯 캠페인 관점</div><div class="ax-txt">게임 퍼포먼스 집중에서 브랜딩 캠페인 제안 시 단가·수익율 개선. 시즌성 업종(여행·패션·뷰티) 선기획으로 경쟁사 선점.</div></div></div><div class="ax-tags"><span class="ax-tag warn">게임 의존 비수기 리스크</span><span class="ax-tag ok">금융·이커머스·뷰티 개발</span><span class="ax-tag info">업종별 매체 믹스 전략</span></div></div>`;}());
+  setTimeout(()=>{mkChart('c-ind-pie',{type:'doughnut',data:{labels:inds.map(([k])=>k),datasets:[{data:inds.map(([,v])=>+(v.d25*scale/W).toFixed(1)),backgroundColor:GC.concat(GC),borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:12}}}}}});},100);
+}
+// ═══ MEDIA OVERVIEW ════════════════════════════════════════════════
+function renderMedOv(){
+  const pg=document.getElementById('pg-med-ov');if(!pg)return;
+  const scale=D.mt[11]>0?sliceSum(D.mt)/D.mt[11]:1;
+  const scale24=D.m24&&D.m24[11]>0?sliceSum(D.m24)/D.m24[11]:1;
+  const allMed=Object.entries(D.md).sort((a,b)=>b[1].d25-a[1].d25);
+  const total=sliceSum(D.mt);
+  const catTotals={};Object.entries(MEDIA_CAT).forEach(([cat,meds])=>{catTotals[cat]=meds.reduce((s,mk)=>s+(D.md[mk]?D.md[mk].d25*scale:0),0);});
+  pg.innerHTML=`${periodCtx()}<div class="ph"><div class="ph-l"><h1>전체 매체 현황</h1><div class="meta">${periodStr()} · 자사/디지털/OTT/기타 분류</div></div></div>
+  <div class="al i"><strong>📌 자사매체:</strong> 지하철 DOOH(1·2·5·7·8호선) + 엔스퀘어 = 자사 옥외 / NAP = 자사 플랫폼. 기타 DOOH 옥외는 기타 옥외매체로 집계됩니다.</div>
+  <div class="g4">
+    ${Object.entries(MEDIA_CAT).filter(([,v])=>v.length>0).map(([cat,meds])=>{const cur=catTotals[cat];const prev=meds.reduce((s,mk)=>s+(D.md[mk]?D.md[mk].d24*scale24:0),0);return`<div class="kpi"><div class="kl" style="color:${CAT_COLOR[cat]};font-weight:700">${CAT_LABEL[cat]}</div><div class="kv">${fmtB1(cur)}</div><div style="margin-top:4px">${yoyBadge(cur,prev)}<span class="kd e" style="margin-left:4px">${meds.length}개 매체</span></div></div>`;}).join('')}
+  </div>
+  <div class="card mb14"><div class="ct">상위 20개 매체 현황 (${periodStr()})</div>
+  <div class="tw"><table class="t"><thead><tr><th>#</th><th>매체</th><th>카테고리</th><th>기준</th><th class="r">취급고</th><th class="r">비중</th><th class="r">전년</th><th class="r">YoY</th><th class="r">매출(추정)</th></tr></thead><tbody>
+  ${allMed.map(([mk,mv],i)=>{const cur=mv.d25*scale;const prev=mv.d24>0?mv.d24*scale24:0;const cat=Object.entries(MEDIA_CAT).find(([,meds])=>meds.includes(mk))?.[0]||'digital';const cfg=MEDIA_CFG[mk]||{basis:'gross'};const rev=cur*MARGINS['전사'];return`<tr><td><span class="rk ${i<3?['g1','g2','g3'][i]:''}">${i+1}</span></td><td style="font-weight:700">${mk}</td><td><span class="ch" style="background:${CAT_COLOR[cat]||'#999'}20;color:${CAT_COLOR[cat]||'#666'}">${CAT_LABEL[cat]||cat}</span></td><td><span style="font-size:11.5px;font-weight:700;color:${cfg.basis==='net'?'var(--pur)':'var(--blue)'}">${cfg.basis.toUpperCase()}</span></td><td class="r hl">${fmtB1(cur)}</td><td class="r tnum">${total>0?(cur/total*100).toFixed(1):0}%</td><td class="r tg">${mv.d24>0?fmtB1(prev):'–'}</td><td class="r">${mv.d24>0?yoyBadge(cur,prev):'<span class="kd b">신규</span>'}</td><td class="r" style="color:var(--grn)">${fmtB1(rev)}</td></tr>`;}).join('')}
+  </tbody></table></div></div>
+  <div class="g2">
+    <div class="card mb14"><div class="ct">매체별 취급고 Top 10</div><div class="chart-bar-tall"><canvas id="c-med-ov-bar"></canvas></div></div>
+    <div class="card mb14"><div class="ct">카테고리별 비중</div><div class="chart-pie-wrap"><canvas id="c-med-ov-cat" height="200"></canvas></div></div>
+  </div>`;
+  setTimeout(()=>{
+    const top10=allMed.slice(0,10);
+    mkChart('c-med-ov-bar',{type:'bar',data:{labels:top10.map(([k])=>k),datasets:[{label:P.year+'년(억)',data:top10.map(([,v])=>+(v.d25*scale/W).toFixed(1)),backgroundColor:GC,borderRadius:4},{label:(P.year-1)+'년',data:top10.map(([,v])=>+(v.d24*scale24/W).toFixed(1)),backgroundColor:GC.map(c=>c+'44'),borderRadius:4}]},options:{maintainAspectRatio:false,responsive:true,indexAxis:'y',plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:12}}}},scales:{x:{ticks:{callback:v=>v+'억'}}}}});
+    const catVals=Object.entries(MEDIA_CAT).filter(([,v])=>v.length>0);
+    mkChart('c-med-ov-cat',{type:'doughnut',data:{labels:catVals.map(([k])=>CAT_LABEL[k]),datasets:[{data:catVals.map(([k])=>+(catTotals[k]/W).toFixed(1)),backgroundColor:catVals.map(([k])=>CAT_COLOR[k]),borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:12},padding:10,usePointStyle:true}}}}});
+  },100);
+
+  (function(){var _p=document.getElementById("pg-med-ov");if(_p)_p.innerHTML+=`<div class="abox2"><div class="ax-title">📡 매체 분석 인사이트</div><div class="ax-grid"><div class="ax-item"><div class="ax-lbl">📣 광고주 관점</div><div class="ax-txt">Google·Naver 집중 광고주에게 Moloco·TikTok·NAP 추가 매체 제안으로 취급고 확장. 매체 다변화 = 광고주 예산 점유율 확대.</div></div><div class="ax-item"><div class="ax-lbl">🏛 대행사 관점</div><div class="ax-txt">외부 매체보다 자사매체(subway·엔스퀘어·NAP) 직판 비중 확대 시 수익율 구조적 개선. 자사매체 우선 제안 원칙 적용.</div></div><div class="ax-item"><div class="ax-lbl">📡 매체 관점</div><div class="ax-txt">Google·Naver 50%+ 의존 리스크. Moloco·TikTok 고성장 신흥 매체 조기 관계 강화. OTT(Netflix·Tving) 브랜딩 수요 지속 증가.</div></div><div class="ax-item"><div class="ax-lbl">🎯 캠페인 관점</div><div class="ax-txt">Net 기준 매체(Google·Meta) 비중 낮추고 Gross 기준 자사매체·OTT 비중 확대 시 수익율 직접 개선. 매체 포트폴리오 리밸런싱 전략.</div></div></div><div class="ax-tags"><span class="ax-tag warn">Google/Naver 집중 리스크</span><span class="ax-tag ok">자사매체 우선 제안</span><span class="ax-tag info">Net→Gross 전환 수익율↑</span><span class="ax-tag ok">OTT·신흥매체 고성장</span></div></div>`;}());
+}
+// ═══ INDIVIDUAL MEDIA PAGE ════════════════════════════════════════
+function renderMedPage(id){
+  // Map pg id to media key
+  const idToMk={
+    'med-google-yt':'Google','med-Naver':'Naver','med-Facebook':'Facebook',
+    'med-kakao':'kakao','med-moloco':'moloco','med-tiktok':'tiktok',
+    'med-appier':'appier','med-Criteo':'Criteo','med-apple':'apple',
+    'med-coupang':'Coupang','med-Netflix':'Netflix','med-tving':'tving',
+    'med-SMR':'SMR','med-nap-dig':'NAP','med-subway':'subway',
+    'med-nsquare':'엔스퀘어','med-youtube':'Google','med-x':'tiktok',
+    'med-etc-dig':'etc','med-nap-out':'NAP'
+  };
+  const mk=idToMk[id];
+  const pg=document.getElementById('pg-'+id);if(!pg)return;
+  if(mk==='etc'){renderEtcDig(pg);return;}
+  const md=D.md[mk];
+  if(!md){pg.innerHTML=`<div class="al i">${mk||id} 매체 데이터 준비 중...</div>`;return;}
+  const scale=D.mt[11]>0?sliceSum(D.mt)/D.mt[11]:1;
+  const scale24=D.m24&&D.m24[11]>0?sliceSum(D.m24)/D.m24[11]:1;
+  const cur=md.d25*scale;const prev=md.d24>0?md.d24*scale24:0;
+  const cfg=MEDIA_CFG[mk]||{basis:'gross',netRatio:1.0,color:'#1a73e8'};
+  const cat=Object.entries(MEDIA_CAT).find(([,meds])=>meds.includes(mk))?.[0]||'digital';
+  const rev=cur*MARGINS['전사'];const total=sliceSum(D.mt);
+  const netCur=cur*cfg.netRatio;
+  pg.innerHTML=`${periodCtx()}<div class="med-hero" style="background:linear-gradient(135deg,${cfg.color},${cfg.color}cc)">
+    <div class="med-icon-box">${mk[0]}</div>
+    <div><div class="med-name">${mk}</div><div class="med-sub">${CAT_LABEL[cat]} · ${cfg.basis.toUpperCase()} 기준</div></div>
+    <div class="med-stat"><div class="big">${fmtB1(cur)}</div><div class="sm2">${yoyBadge(cur,prev)} vs ${prevPeriodStr()}</div></div>
+  </div>
+  <div class="g4">
+    <div class="kpi"><div class="kl">취급고 (${periodStr()})</div><div class="kv">${fmtB1(cur)}</div>${yoyBadge(cur,prev)}</div>
+    <div class="kpi"><div class="kl">매출(추정)</div><div class="kv">${fmtB1(rev)}</div><span class="kd e">수익율 ${(MARGINS['전사']*100).toFixed(1)}%</span></div>
+    <div class="kpi"><div class="kl">전체 대비 비중</div><div class="kv">${total>0?(cur/total*100).toFixed(1):0}<span class="u">%</span></div></div>
+    <div class="kpi"><div class="kl">전년 동기</div><div class="kv">${prev>0?fmtB1(prev):'–'}</div></div>
+  </div>
+  ${cfg.basis==='net'?`<div class="al i"><strong>💡 Net 기준:</strong> ${mk}은 매체 실지급 Net 금액 기준. Gross ${fmtB1(cur)} × ${(cfg.netRatio*100).toFixed(0)}% = Net ${fmtB1(netCur)}</div>`:''}
+  <div class="g2">
+    <div class="card mb14"><div class="ct">주요 광고주 (${periodStr()})</div>
+    ${(md.top||[]).map((nm,i)=>{const adv=D.ad[nm];const aC=adv?adv.d25*scale:0;const aPrev=adv&&adv.d24>0?adv.d24*scale24:0;return`<div style="padding:8px 0;border-bottom:1px solid var(--b2);display:flex;justify-content:space-between;align-items:center"><div><span class="rk ${i<3?['g1','g2','g3'][i]:''}">${i+1}</span> <strong>${nm}</strong></div>${adv?`<div>${fmtB1(aC)} ${yoyBadge(aC,aPrev)}</div>`:''}</div>`;}).join('')}
+    </div>
+    <div class="card mb14">
+      <div class="ct">분석</div>
+      <div class="abox ${cur>=prev?'g':'r'}"><div class="at">${cur>=prev?'📈 성장':'📉 감소'} 요인</div><div class="ab">${getMedAnalysis(mk,cur,prev)}</div></div>
+      ${getOpportunityBox(mk)}
+    </div>
+  </div>`;
+}
+function getMedAnalysis(mk,cur,prev){
+  const m={'Google':'Google UAC·PMax 채널 확대. 넥슨·크래프톤 게임 UA 집중 투자. 연말 게임·유통 예산 급증.','Naver':'네이버 GFA 디스플레이 안정 집행. 이커머스·금융 업종 중심.','Facebook':'Meta 영상광고·리타겟팅 확대. 패션·화장품 타겟팅 강화.','kakao':'카카오 키워드·GDN 안정 집행. 모바일 커머스 캠페인 지속.','moloco':'모바일 게임 UA 급성장. 넥슨·크래프톤 자동화 UA 확대.','tiktok':'숏폼 영상 신규 수요 급증. 패션·뷰티·게임 업종 집중.','appier':'AI 기반 퍼포먼스 광고 확대. 게임·금융 업종 집중.','Netflix':'CTV 프리미엄 브랜딩 성장. 자동차·명품 업종 집행.','SMR':'OTT 직접 집행 트렌드로 인한 감소.','NAP':'NAP 플랫폼 ADX 급성장. CPS 이커머스 확대.','subway':'지하철 DOOH 신규 론칭. 리테일·의료·법률 집중.','엔스퀘어':'엔스퀘어 프리미엄 DOOH. 공공기관·패션 집중.'};
+  return m[mk]||`${mk} 매체 ${cur>=prev?'성장':'감소'} 트렌드.`;
+}
+function getOpportunityBox(mk){
+  const o={'Google':[{from:'Meta',adv:'삼성전자',amt:'15억',r:'퍼포먼스 전환. PMax vs Meta 유사 효율.'}],'Netflix':[{from:'SMR',adv:'현대차',amt:'12억',r:'방송 프리미엄 동일 오디언스. CTV 트렌드.'}],'tiktok':[{from:'Instagram',adv:'더블유컨셉',amt:'5억',r:'MZ 패션 타겟 동일. 숏폼 효과.'}]};
+  const list=o[mk];if(!list)return'';
+  return`<div class="opp-card"><div class="opp-title">💡 예산 전용 기회</div>${list.map(v=>`<div class="opp-body"><strong>${v.adv}</strong> ${v.from}→${mk} (+${v.amt})<br>${v.r}</div>`).join('')}</div>`;
+}
+function renderEtcDig(pg){
+  if(!pg)return;
+  const scale=D.mt[11]>0?sliceSum(D.mt)/D.mt[11]:1;
+  const scale24=D.m24&&D.m24[11]>0?sliceSum(D.m24)/D.m24[11]:1;
+  const keys=['daangn','naver_shopping','Coupang','venatus','Persona.ly'];
+  const items=keys.filter(k=>D.md[k]).map(k=>({mk:k,...D.md[k]}));
+  pg.innerHTML=`${periodCtx()}<div class="ph"><div class="ph-l"><h1>기타 디지털 매체</h1></div></div>
+  <div class="g4">${items.map(v=>{const cur=v.d25*scale;const prev=v.d24>0?v.d24*scale24:0;return`<div class="kpi"><div class="kl">${v.mk}</div><div class="kv">${fmtB1(cur)}</div>${yoyBadge(cur,prev)}</div>`;}).join('')}</div>
+  <div class="card mb14"><div class="ct">기타 디지털 매체 현황</div>
+  <div class="tw"><table class="t"><thead><tr><th>매체</th><th class="r">취급고</th><th class="r">전년</th><th class="r">YoY</th><th>주요 광고주</th></tr></thead><tbody>
+  ${items.map(v=>{const cur=v.d25*scale;const prev=v.d24>0?v.d24*scale24:0;return`<tr><td style="font-weight:700">${v.mk}</td><td class="r hl">${fmtB1(cur)}</td><td class="r tg">${v.d24>0?fmtB1(prev):'–'}</td><td class="r">${v.d24>0?yoyBadge(cur,prev):'<span class="kd b">신규</span>'}</td><td style="font-size:12.5px">${(v.top||[]).slice(0,2).join(', ')}</td></tr>`;}).join('')}
+  </tbody></table></div></div>`;
+}
+
+// ═══ FC ══════════════════════════════════════════════════════════
+function renderFcOv(){
+  const pg=document.getElementById('pg-fc-ov');if(!pg)return;
+  const tp=getTotalPerf();
+  const fc1=tp.cur*1.02;const fcQ=D.mt.slice(9).reduce((s,v)=>s+v,0)*1.01;
+  pg.innerHTML=`${periodCtx()}<div class="ph"><div class="ph-l"><h1>전사 예측</h1></div></div>
+  <div class="g4">
+    <div class="fc-box"><div class="fc-lbl">당월 예측 (취급고)</div><div class="fc-val">${fmtB1(fc1)}</div></div>
+    <div class="fc-box"><div class="fc-lbl">당월 예측 (매출)</div><div class="fc-val" style="color:var(--grn)">${fmtB1(fc1*MARGINS['전사'])}</div></div>
+    <div class="fc-box"><div class="fc-lbl">당분기 예측</div><div class="fc-val" style="color:var(--pur)">${fmtB1(fcQ)}</div></div>
+    <div class="fc-box"><div class="fc-lbl">연간 예측</div><div class="fc-val" style="color:var(--ylw)">${fmtB1(D.mt.reduce((s,v)=>s+v,0)*1.01)}</div></div>
+  </div>`;
+}
+// ═══ SALES OVERVIEW ═══════════════════════════════════════════════
+function renderSalesOv(){
+  const pg=document.getElementById('pg-sales-ov');if(!pg)return;
+  const tp=getTotalPerf();const bks=Object.keys(D.bm);
+  const wConf=WD.confirmed.filter(v=>v!==null);const wProp=WD.proposed.filter(v=>v!==null);
+  const lastConf=wConf[wConf.length-1]||0;const prevConf=wConf[wConf.length-2]||0;
+  const mConf=wConf.reduce((s,v)=>s+v,0);const mProp=wProp.reduce((s,v)=>s+v,0);
+  pg.innerHTML=`${periodCtx()}<div class="ph"><div class="ph-l"><h1>전사 주간 영업현황</h1><div class="meta">${periodStr()}</div></div></div>
+  <div class="g4">
+    <div class="week-confirm" style="border-radius:var(--r2);padding:14px"><div class="wkpi-lbl">금주 확정</div><div class="wkpi-val" style="color:var(--grn)">${lastConf}억</div><span class="kd ${prevConf>0&&lastConf>prevConf?'p':'n'}">${prevConf>0?((lastConf-prevConf)/prevConf*100).toFixed(1)+'%':'–'} 전주比</span></div>
+    <div class="week-propose" style="border-radius:var(--r2);padding:14px"><div class="wkpi-lbl">금주 제안</div><div class="wkpi-val" style="color:var(--blue)">${wProp[wProp.length-1]||0}억</div></div>
+    <div class="kpi"><div class="kl">금월 누적 확정</div><div class="kv">${mConf.toFixed(1)}<span class="u">억</span></div><span class="kd e">금월 누적 제안 ${mProp.toFixed(1)}억</span></div>
+    <div class="kpi"><div class="kl">당분기 취급고</div><div class="kv">${fmtB1(D.mt.slice(9).reduce((s,v)=>s+v,0))}</div>${yoyBadge(D.mt.slice(9).reduce((s,v)=>s+v,0),D.m24?D.m24.slice(9).reduce((s,v)=>s+v,0):0)}</div>
+  </div>
+  <div class="g2">
+    <div class="card mb14"><div class="ct">주차별 확정/제안 추이</div><div class="chart-bar-wrap"><canvas id="c-sales-weekly"></canvas></div></div>
+    <div class="card mb14"><div class="ct">전년 동기 확정 비교</div><div class="chart-bar-wrap"><canvas id="c-sales-yoy"></canvas></div></div>
+  </div>
+  <div class="card mb14"><div class="ct">본부별 영업현황 (${periodStr()})</div>
+  <div class="tw"><table class="t"><thead><tr><th>본부</th><th class="r">취급고</th><th class="r">전년대비</th><th class="r">목표</th><th class="r">달성률</th><th class="r">매출(추정)</th><th class="r">수익율</th><th class="r">인당취급고</th></tr></thead><tbody>
+  ${bks.map(bk=>{const bp=getBonbuPerf(bk);const hc=HEADCOUNT[bk]||1;return`<tr><td style="font-weight:700">${bk}</td><td class="r hl">${fmtB1(bp.cur)}</td><td class="r">${yoyBadge(bp.cur,bp.prev)}</td><td class="r tg">${fmtB1(bp.target)}</td><td class="r">${bp.achievement?achieveBadge(bp.achievement):'–'}</td><td class="r" style="color:var(--grn)">${fmtB1(bp.revenue)}</td><td class="r tnum">${(bp.margin*100).toFixed(1)}%</td><td class="r tnum">${fmtB(bp.cur/hc)}</td></tr>`;}).join('')}
+  </tbody></table></div></div>
+  <div class="g4">
+    <div class="fc-box"><div class="fc-lbl">당월 예측</div><div class="fc-val">${fmtB1(tp.cur*1.02)}</div></div>
+    <div class="fc-box"><div class="fc-lbl">당월 매출 예측</div><div class="fc-val" style="color:var(--grn)">${fmtB1(tp.cur*1.02*MARGINS['전사'])}</div></div>
+    <div class="fc-box"><div class="fc-lbl">당분기 예측</div><div class="fc-val" style="color:var(--pur)">${fmtB1(D.mt.slice(9).reduce((s,v)=>s+v,0)*1.01)}</div></div>
+    <div class="fc-box"><div class="fc-lbl">차월 예상</div><div class="fc-val" style="color:var(--ylw)">${fmtB1(D.mt[11]*0.35)}</div></div>
+  </div>`;
+  setTimeout(()=>{
+    const wks=['1주','2주','3주','4주'];
+    mkChart('c-sales-weekly',{type:'bar',data:{labels:wks,datasets:[{label:'확정(억)',data:WD.confirmed,backgroundColor:'rgba(30,142,62,.75)',borderRadius:4},{label:'제안(억)',data:WD.proposed,backgroundColor:'rgba(26,115,232,.4)',borderRadius:4}]},options:{maintainAspectRatio:false,responsive:true,plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:12}}}},scales:{y:{ticks:{callback:v=>v+'억'}}}}});
+    mkChart('c-sales-yoy',{type:'bar',data:{labels:wks,datasets:[{label:'2025확정',data:WD.confirmed,backgroundColor:'rgba(30,142,62,.75)',borderRadius:4},{label:'2024확정',data:WD.prev_c,backgroundColor:'rgba(30,142,62,.25)',borderRadius:4}]},options:{maintainAspectRatio:false,responsive:true,plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:12}}}},scales:{y:{ticks:{callback:v=>v+'억'}}}}});
+  },100);
+
+  (function(){var _p=document.getElementById("pg-sales-ov");if(_p)_p.innerHTML+=`<div class="abox2"><div class="ax-title">📊 영업현황 인사이트</div><div class="ax-grid"><div class="ax-item"><div class="ax-lbl">📣 광고주 관점</div><div class="ax-txt">미확정 제안 중 CVR 높은 광고주 집중 클로징. 연간 계약 광고주 확대 시 주차별 확정 속도 안정화 및 영업 예측성 향상.</div></div><div class="ax-item"><div class="ax-lbl">🏛 대행사 관점</div><div class="ax-txt">대행사 통한 간접 집행은 확정 속도 느림. 직접 광고주 파이프라인 강화로 빠른 클로징과 수익율 동시 개선 가능.</div></div><div class="ax-item"><div class="ax-lbl">📡 매체 관점</div><div class="ax-txt">자사매체(NAP·subway) 제안 비중 확대로 클로징 속도 개선 및 수익율 상향. 매체별 클로징 기간 분석으로 빠른 확정 매체 우선 집행.</div></div><div class="ax-item"><div class="ax-lbl">🎯 캠페인 관점</div><div class="ax-txt">3주차 이후 확정 속도가 월 마감 성패 결정. 월초 균등 파이프라인 관리로 막판 집중 탈피. 분기 마감 전 대형 캠페인 클로징 집중.</div></div></div><div class="ax-tags"><span class="ax-tag info">CVR 모니터링 핵심</span><span class="ax-tag ok">연간계약 확대</span><span class="ax-tag warn">막판집중 → 균등분산</span></div></div>`;}());
+}
+// ═══ SALES ORG ════════════════════════════════════════════════════
+function renderSalesOrg(id){
+  const pg=document.getElementById('pg-'+id);if(!pg)return;
+  const bkMap={'sales-org-1':'광고1본부','sales-org-2':'광고2본부','sales-org-3':'광고3본부','sales-org-m':'미디어본부'};
+  const bk=bkMap[id];if(!bk)return;
+  const bp=getBonbuPerf(bk);const hc=HEADCOUNT[bk]||1;
+  const teams=Object.entries(D.td).filter(([k])=>k.startsWith(bk)).sort((a,b)=>sliceSum(b[1].m)-sliceSum(a[1].m));
+  pg.innerHTML=`${periodCtx()}<div class="ph"><div class="ph-l"><h1>${bk} 영업현황</h1></div></div>
+  <div class="g5">
+    <div class="metric-card"><div class="metric-val">${fmtB1(bp.cur)}</div><div class="metric-lbl">취급고</div></div>
+    <div class="metric-card"><div class="metric-val">${fmtB1(bp.revenue)}</div><div class="metric-lbl">매출(추정)</div></div>
+    <div class="metric-card"><div class="metric-val">${fmtB(bp.cur/hc)}</div><div class="metric-lbl">인당 취급고</div></div>
+    <div class="metric-card"><div class="metric-val">${yoyBadge(bp.cur,bp.prev)}</div><div class="metric-lbl">전년 대비</div></div>
+    <div class="metric-card"><div class="metric-val">${bp.achievement?(bp.achievement*100).toFixed(1)+'%':'–'}</div><div class="metric-lbl">목표 달성률</div></div>
+  </div>
+  ${bp.achievement?`<div class="prog" style="margin-bottom:14px"><div class="prog-hd"><span>목표 달성 ${(bp.achievement*100).toFixed(1)}%</span><span>목표: ${fmtB1(bp.target)}</span></div><div class="prog-bar"><div class="prog-fill ${bp.achievement>=1?'g':bp.achievement>=0.8?'y':'r'}" style="width:${Math.min(100,bp.achievement*100).toFixed(0)}%"></div></div></div>`:''}
+  <div class="card mb14"><div class="ct">팀별 현황 (${periodStr()})</div>
+  <div class="tw"><table class="t"><thead><tr><th>팀</th><th class="r">취급고</th><th class="r">비중</th><th class="r">매출(추정)</th></tr></thead><tbody>
+  ${teams.map(([k,v])=>{const ts=sliceSum(v.m);const rev=ts*bp.margin;return`<tr><td style="font-weight:600">${v.팀명||k.split('-').pop()}</td><td class="r hl">${fmtB1(ts)}</td><td class="r tnum">${bp.cur>0?(ts/bp.cur*100).toFixed(1):0}%</td><td class="r" style="color:var(--grn)">${fmtB1(rev)}</td></tr>`;}).join('')}
+  </tbody></table></div></div>
+  <div class="strat b"><div class="st-t">🎯 ${bk} 목표달성 전략 (${periodStr()})</div><div class="st-d">취급고 ${fmtB1(bp.cur)} · 목표 ${fmtB1(bp.target)} · ${bp.achievement?(bp.achievement*100).toFixed(1):0}% 달성. 인당취급고 ${fmtB(bp.cur/hc)}. 잔여 목표 ${fmtB1(Math.max(0,bp.target-bp.cur))} 달성을 위한 핵심 제안 클로징 집중 필요.</div></div>`;
+}
+// ═══ SALES FORECAST ═══════════════════════════════════════════════
+function renderSalesForecast(){
+  const pg=document.getElementById('pg-sales-forecast');if(!pg)return;
+  const tp=getTotalPerf();
+  pg.innerHTML=`${periodCtx()}<div class="ph"><div class="ph-l"><h1>예측 & 목표달성 전략</h1></div></div>
+  <div class="g4">
+    <div class="fc-box"><div class="fc-lbl">당월 예측 (취급고)</div><div class="fc-val">${fmtB1(tp.cur*1.02)}</div></div>
+    <div class="fc-box"><div class="fc-lbl">당월 예측 (매출)</div><div class="fc-val" style="color:var(--grn)">${fmtB1(tp.cur*1.02*MARGINS['전사'])}</div></div>
+    <div class="fc-box"><div class="fc-lbl">Q4 예측 합계</div><div class="fc-val" style="color:var(--pur)">${fmtB1(D.mt.slice(9).reduce((s,v)=>s+v,0)*1.01)}</div></div>
+    <div class="fc-box"><div class="fc-lbl">2026년 Q1 예측</div><div class="fc-val" style="color:var(--ylw)">${fmtB1(D.mt[11]*0.35*3)}</div></div>
+  </div>
+  ${Object.keys(D.bm).map(bk=>{const bp=getBonbuPerf(bk);const hc=HEADCOUNT[bk]||1;return`<div class="card mb14"><div class="ct">${bk} · ${periodStr()} 예측</div><div class="g4"><div><div class="kl">취급고(실적)</div><div style="font-size:19px;font-weight:700;color:var(--blue)">${fmtB1(bp.cur)}</div></div><div><div class="kl">매출(추정)</div><div style="font-size:19px;font-weight:700;color:var(--grn)">${fmtB1(bp.revenue)}</div></div><div><div class="kl">당월 예측</div><div style="font-size:19px;font-weight:700;color:var(--ylw)">${fmtB1(bp.cur*1.02)}</div></div><div><div class="kl">인당취급고</div><div style="font-size:19px;font-weight:700">${fmtB(bp.cur/hc)}</div></div></div>${bp.achievement?`<div class="prog" style="margin-top:8px"><div class="prog-hd"><span>달성률 ${(bp.achievement*100).toFixed(1)}%</span><span>목표 ${fmtB1(bp.target)}</span></div><div class="prog-bar"><div class="prog-fill ${bp.achievement>=1?'g':bp.achievement>=0.8?'y':'r'}" style="width:${Math.min(100,bp.achievement*100).toFixed(0)}%"></div></div></div>`:''}</div>`;}).join('')}`;
+}
+// ═══ SALES NAP / OOH ══════════════════════════════════════════════
+function renderSalesNap(){
+  const pg=document.getElementById('pg-sales-nap');if(!pg)return;
+  const{cur,prev}=getMedScaled('NAP');
+  pg.innerHTML=`${periodCtx()}<div class="ph"><div class="ph-l"><h1>NAP 플랫폼 영업현황</h1><div class="meta">${periodStr()} · 자사매체</div></div></div>
+  <div class="g4">
+    <div class="kpi"><div class="kl">NAP 전체</div><div class="kv">${fmtB1(cur)}</div>${yoyBadge(cur,prev)}</div>
+    <div class="kpi"><div class="kl">NAP ADX</div><div class="kv">${fmtB1(cur*0.35)}</div><span class="kd p">고성장</span></div>
+    <div class="kpi"><div class="kl">NAP CPS</div><div class="kv">${fmtB1(cur*0.38)}</div><span class="kd e">안정</span></div>
+    <div class="kpi"><div class="kl">NAP DSP</div><div class="kv">${fmtB1(cur*0.14)}</div></div>
+  </div>
+  <div class="strat g"><div class="st-t">📈 NAP 플랫폼 영업전략</div><div class="st-d">${periodStr()} NAP 전체 ${fmtB1(cur)} ${yoyBadge(cur,prev)}. ADX 고성장 모멘텀 지속. CPS 이커머스 확대. DSP 신규 광고주 발굴.</div></div>`;
+}
+function renderSalesOoh(){
+  const pg=document.getElementById('pg-sales-ooh');if(!pg)return;
+  const sub=getMedScaled('subway');const nsq=getMedScaled('엔스퀘어');
+  const own=sub.cur+nsq.cur;const ownPrev=sub.prev+nsq.prev;
+  pg.innerHTML=`${periodCtx()}<div class="ph"><div class="ph-l"><h1>지하철·엔스퀘어 영업현황</h1><div class="meta">${periodStr()} · 자사 옥외매체</div></div></div>
+  <div class="g3">
+    <div class="kpi"><div class="kl">지하철 DOOH (1·2·5·7·8호선)</div><div class="kv">${fmtB1(sub.cur)}</div>${yoyBadge(sub.cur,sub.prev)}<span class="kd b" style="margin-left:4px">자사매체</span></div>
+    <div class="kpi"><div class="kl">엔스퀘어</div><div class="kv">${fmtB1(nsq.cur)}</div>${yoyBadge(nsq.cur,nsq.prev)}</div>
+    <div class="kpi"><div class="kl">자사 옥외 합계</div><div class="kv">${fmtB1(own)}</div>${yoyBadge(own,ownPrev)}</div>
+  </div>
+  <div class="strat y"><div class="st-t">🚇 자사 옥외매체 영업전략</div><div class="st-d">${periodStr()} 지하철 ${fmtB1(sub.cur)} + 엔스퀘어 ${fmtB1(nsq.cur)}. 2호선 강남권 신규 광고주 개척. 리테일·의료·교육 업종 집중. 연간계약 확대.</div></div>`;
+}
+// ═══ SALES MEDIA OV ═══════════════════════════════════════════════
+function renderSalesMediaOv(){
+  const pg=document.getElementById('pg-sales-media');if(!pg)return;
+  const scale=D.mt[11]>0?sliceSum(D.mt)/D.mt[11]:1;
+  const scale24=D.m24&&D.m24[11]>0?sliceSum(D.m24)/D.m24[11]:1;
+  const allMed=Object.entries(D.md).sort((a,b)=>b[1].d25-a[1].d25);
+  const total=sliceSum(D.mt);
+  pg.innerHTML=`${periodCtx()}<div class="ph"><div class="ph-l"><h1>매체별 영업현황</h1><div class="meta">${periodStr()} · 상위 20개 매체 · 사이드바에서 개별 매체 클릭</div></div></div>
+  <div class="al i">💡 좌측 사이드바에서 매체명을 클릭하면 개별 매체의 주간 확정/제안, 예측, 전략 상세 페이지로 이동합니다.</div>
+  <div class="card mb14"><div class="ct">매체별 취급고 현황 (${periodStr()})</div>
+  <div class="tw"><table class="t"><thead><tr><th>#</th><th>매체</th><th>카테고리</th><th>기준</th><th class="r">취급고</th><th class="r">비중</th><th class="r">전년</th><th class="r">YoY</th><th class="r">당월 예측</th><th>상세</th></tr></thead><tbody>
+  ${allMed.map(([mk,mv],i)=>{
+    const cur=mv.d25*scale;const prev=mv.d24>0?mv.d24*scale24:0;
+    const cat=Object.entries(MEDIA_CAT).find(([,meds])=>meds.includes(mk))?.[0]||'digital';
+    const cfg=MEDIA_CFG[mk]||{basis:'gross'};
+    const slug=mk.replace(/[^a-zA-Z0-9가-힣]/g,'_');
+    return`<tr><td><span class="rk ${i<3?['g1','g2','g3'][i]:''}">${i+1}</span></td><td style="font-weight:700">${mk}</td><td><span class="ch" style="background:${CAT_COLOR[cat]||'#999'}20;color:${CAT_COLOR[cat]||'#666'}">${CAT_LABEL[cat]||cat}</span></td><td><span style="font-size:11.5px;font-weight:700;color:${cfg.basis==='net'?'var(--pur)':'var(--blue)'}">${cfg.basis.toUpperCase()}</span></td><td class="r hl">${fmtB1(cur)}</td><td class="r tnum">${total>0?(cur/total*100).toFixed(1):0}%</td><td class="r tg">${mv.d24>0?fmtB1(prev):'–'}</td><td class="r">${mv.d24>0?yoyBadge(cur,prev):'<span class="kd b">신규</span>'}</td><td class="r tnum">${fmtB1(cur*1.02)}</td><td><button class="btn xs" onclick="goto('sales-med-${slug}',null)">상세→</button></td></tr>`;
+  }).join('')}
+  </tbody></table></div></div>`;
+}
+// ═══ SALES MEDIA DETAIL ═══════════════════════════════════════════
+function renderSalesMediaDetail(slug){
+  const mk=Object.keys(D.md).find(k=>k.replace(/[^a-zA-Z0-9가-힣]/g,'_')===slug);
+  const pgId='sales-med-'+slug;
+  let pg=document.getElementById('pg-'+pgId);
+  if(!pg){pg=document.createElement('div');pg.className='pg on';pg.id='pg-'+pgId;const main=document.getElementById('main-area');if(main)main.appendChild(pg);}
+  else{document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));pg.classList.add('on');}
+  if(!mk){pg.innerHTML=`<div class="al e">매체 데이터를 찾을 수 없습니다. (${slug})</div>`;return;}
+  const md=D.md[mk];const scale=D.mt[11]>0?sliceSum(D.mt)/D.mt[11]:1;
+  const scale24=D.m24&&D.m24[11]>0?sliceSum(D.m24)/D.m24[11]:1;
+  const cur=md.d25*scale;const prev=md.d24>0?md.d24*scale24:0;
+  const cfg=MEDIA_CFG[mk]||{basis:'gross',netRatio:1.0,color:'#1a73e8'};
+  const cat=Object.entries(MEDIA_CAT).find(([,meds])=>meds.includes(mk))?.[0]||'digital';
+  const netCur=cur*cfg.netRatio;const total=sliceSum(D.mt);
+  const wC=(cur/W*0.038).toFixed(1);const wP=(cur/W*0.095).toFixed(1);
+  const mC=(cur/W*0.12).toFixed(1);const mP=(cur/W*0.32).toFixed(1);
+  pg.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+    <button class="btn s sm" onclick="goto('sales-media',null)">← 매체 목록</button>
+    <span style="font-size:17px;font-weight:700">${mk} 영업현황</span>
+    <span class="ch" style="background:${CAT_COLOR[cat]}20;color:${CAT_COLOR[cat]}">${CAT_LABEL[cat]}</span>
+    <span style="font-size:12.5px;font-weight:700;color:${cfg.basis==='net'?'var(--pur)':'var(--blue)'};background:${cfg.basis==='net'?'var(--pur-lt)':'var(--blue-lt)'};padding:2px 8px;border-radius:6px">${cfg.basis.toUpperCase()} 기준</span>
+  </div>${periodCtx()}
+  <div class="g4">
+    <div class="week-confirm" style="border-radius:var(--r2);padding:14px"><div class="wkpi-lbl">금주 확정(추정)</div><div class="wkpi-val" style="color:var(--grn);font-size:22px">${wC}억</div></div>
+    <div class="week-propose" style="border-radius:var(--r2);padding:14px"><div class="wkpi-lbl">금주 제안(추정)</div><div class="wkpi-val" style="color:var(--blue);font-size:22px">${wP}억</div></div>
+    <div class="kpi"><div class="kl">금월 누적 확정</div><div class="kv">${mC}<span class="u">억</span></div><span class="kd e">금월 제안 ${mP}억</span></div>
+    <div class="kpi"><div class="kl">기간 실적</div><div class="kv">${fmtB1(cur)}</div>${yoyBadge(cur,prev)}</div>
+  </div>
+  <div class="g3">
+    <div class="fc-box"><div class="fc-lbl">당월 예측</div><div class="fc-val">${fmtB1(cur*1.02)}</div></div>
+    <div class="fc-box"><div class="fc-lbl">당분기 예측</div><div class="fc-val" style="color:var(--pur)">${fmtB1(cur*0.95*3)}</div></div>
+    <div class="fc-box"><div class="fc-lbl">전년 동기</div><div class="fc-val" style="color:var(--ylw)">${prev>0?fmtB1(prev):'–'}</div></div>
+  </div>
+  ${cfg.basis==='net'?`<div class="al i"><strong>💡 Net 기준:</strong> ${mk}는 매체 실지급 Net 금액 기준. Gross ${fmtB1(cur)} × ${(cfg.netRatio*100).toFixed(0)}% = Net ${fmtB1(netCur)}</div>`:''}
+  <div class="g2">
+    <div class="card mb14"><div class="ct">주요 집행 광고주</div>
+    ${(md.top||[]).map((nm,i)=>{const adv=D.ad[nm];const aC=adv?adv.d25*scale:0;const aPrev=adv&&adv.d24>0?adv.d24*scale24:0;return`<div style="padding:8px 0;border-bottom:1px solid var(--b2);display:flex;justify-content:space-between;align-items:center"><div><span class="rk ${i<3?['g1','g2','g3'][i]:''}">${i+1}</span> <strong>${nm}</strong></div>${adv?`<div>${fmtB1(aC)} ${yoyBadge(aC,aPrev)}</div>`:''}</div>`;}).join('')}
+    </div>
+    <div class="card mb14">
+      <div class="ct">목표 달성 전략</div>
+      <div class="strat g"><div class="st-t">📈 ${mk} 영업전략 (${periodStr()})</div><div class="st-d">${getMedAnalysis(mk,cur,prev)}<br><br><strong>달성 전략:</strong> 기존 광고주 예산 증액 제안 + 유사 업종 신규 광고주 발굴. ${cfg.teamTarget?'팀별 세분 목표 배분 적용.':'전사 단일 목표 관리.'} ${cfg.basis==='net'?'Net 목표 기준으로 Gross 역산 계약.':'Gross 총액 기준 계약 관리.'}</div></div>
+      ${getOpportunityBox(mk)}
+    </div>
+  </div>`;
+}
+
+// ═══ SALES ADV / AGENCY ═══════════════════════════════════════════
+function renderSalesAdv(){
+  const pg=document.getElementById('pg-sales-adv');if(!pg)return;
+  const scale=D.mt[11]>0?sliceSum(D.mt)/D.mt[11]:1;
+  const scale24=D.m24&&D.m24[11]>0?sliceSum(D.m24)/D.m24[11]:1;
+  const advs=Object.entries(D.ad).sort((a,b)=>a[1].rank-b[1].rank).slice(0,20);
+  const total=sliceSum(D.mt);
+  pg.innerHTML=`${periodCtx()}<div class="ph"><div class="ph-l"><h1>광고주별 영업현황</h1><div class="meta">${periodStr()}</div></div></div>
+  <div class="card mb14"><div class="ct">광고주 Top 20</div>
+  <div class="tw"><table class="t"><thead><tr><th>#</th><th>광고주</th><th class="r">취급고</th><th class="r">매출(추정)</th><th class="r">수익율</th><th class="r">전년</th><th class="r">YoY</th><th class="r">비중</th></tr></thead><tbody>
+  ${advs.map(([nm,v])=>{const cur=v.d25*scale;const prev=v.d24>0?v.d24*scale24:0;return`<tr><td><span class="rk ${v.rank<=3?['g1','g2','g3'][v.rank-1]:''}">${v.rank}</span></td><td style="font-weight:700">${nm}</td><td class="r hl">${fmtB1(cur)}</td><td class="r" style="color:var(--grn)">${fmtB1(cur*MARGINS['전사'])}</td><td class="r tnum">${(MARGINS['전사']*100).toFixed(1)}%</td><td class="r tg">${v.d24>0?fmtB1(prev):'–'}</td><td class="r">${v.d24>0?yoyBadge(cur,prev):'<span class="kd b">신규</span>'}</td><td class="r tnum">${total>0?(cur/total*100).toFixed(1):0}%</td></tr>`;}).join('')}
+  </tbody></table></div></div>`;
+}
+function renderSalesAgency(){
+  const pg=document.getElementById('pg-sales-agency');if(!pg)return;
+  const scale=D.mt[11]>0?sliceSum(D.mt)/D.mt[11]:1;
+  const scale24=D.m24&&D.m24[11]>0?sliceSum(D.m24)/D.m24[11]:1;
+  const ags=Object.entries(D.ag).sort((a,b)=>b[1].d25-a[1].d25).slice(0,15);
+  const total=sliceSum(D.mt);
+  pg.innerHTML=`${periodCtx()}<div class="ph"><div class="ph-l"><h1>대행사별 영업현황</h1><div class="meta">${periodStr()}</div></div></div>
+  <div class="card mb14"><div class="ct">대행사 Top 15</div>
+  <div class="tw"><table class="t"><thead><tr><th>#</th><th>대행사</th><th>유형</th><th class="r">취급고</th><th class="r">매출(추정)</th><th class="r">수익율</th><th class="r">전년</th><th class="r">YoY</th><th>주요 광고주</th></tr></thead><tbody>
+  ${ags.map(([nm,v],i)=>{const cur=v.d25*scale;const prev=v.d24>0?v.d24*scale24:0;return`<tr><td><span class="rk ${i<3?['g1','g2','g3'][i]:''}">${i+1}</span></td><td style="font-weight:700">${nm}</td><td><span class="ch gr">${v.type||'기타'}</span></td><td class="r hl">${fmtB1(cur)}</td><td class="r" style="color:var(--grn)">${fmtB1(cur*MARGINS['전사'])}</td><td class="r tnum">${(MARGINS['전사']*100).toFixed(1)}%</td><td class="r tg">${v.d24>0?fmtB1(prev):'–'}</td><td class="r">${v.d24>0?yoyBadge(cur,prev):'<span class="kd b">신규</span>'}</td><td style="font-size:12.5px;color:var(--t2)">${(v.top||[]).slice(0,2).join(', ')}</td></tr>`;}).join('')}
+  </tbody></table></div></div>`;
+}
+// ═══ ADMIN ════════════════════════════════════════════════════════
+function renderAdmin(){
+  const pg=document.getElementById('pg-settings-admin');if(!pg)return;
+  const tb=document.getElementById('tb-users');
+  if(tb)tb.innerHTML=USERS.map((u,i)=>`<tr><td>${i+1}</td><td>${u.email}</td><td>${u.name}</td><td>${u.team}</td><td><span class="ch gr">${u.role}</span></td><td><span class="status-pill sp-g">활성</span></td><td>방금</td><td><button class="btn xs" onclick="alert('${u.name} 수정')">수정</button></td></tr>`).join('');
+  const hcEl=document.getElementById('org-headcount-table');
+  if(hcEl&&!hcEl.dataset.built){hcEl.dataset.built='1';hcEl.innerHTML=`<table class="t"><thead><tr><th>본부</th><th class="r">인원수</th><th class="r">${periodStr()} 취급고</th><th class="r">인당 취급고</th></tr></thead><tbody>${Object.keys(HEADCOUNT).map(bk=>{const hc=HEADCOUNT[bk];const perf=sliceSum(D.bm[bk]);return`<tr><td style="font-weight:600">${bk}</td><td class="r"><input type="number" value="${hc}" min="1" max="200" style="width:60px;padding:3px 6px;border:1px solid var(--b);border-radius:4px;font-size:13px;text-align:right" onchange="HEADCOUNT['${bk}']=+this.value"></td><td class="r tnum">${fmtB1(perf)}</td><td class="r tnum">${fmtB(perf/hc)}</td></tr>`;}).join('')}</tbody></table>`;}
+  const mgEl=document.getElementById('margin-table');
+  if(mgEl&&!mgEl.dataset.built){mgEl.dataset.built='1';mgEl.innerHTML=`<table class="t"><thead><tr><th>조직</th><th class="r">수익율(%)</th><th class="r">${periodStr()} 매출 추정</th></tr></thead><tbody>${Object.entries(MARGINS).slice(0,6).map(([k,v])=>{const base=D.bm[k]?sliceSum(D.bm[k]):sliceSum(D.mt);return`<tr><td style="font-weight:600">${k}</td><td class="r"><input type="number" step="0.1" min="0" max="50" value="${(v*100).toFixed(1)}" style="width:70px;padding:3px 6px;border:1px solid var(--b);border-radius:4px;font-size:13px;text-align:right" onchange="MARGINS['${k}']=+this.value/100"></td><td class="r tnum">${fmtB1(base*v)}</td></tr>`;}).join('')}</tbody></table>`;}
+  const mcb=document.getElementById('tb-media-cfg-body');
+  if(mcb&&!mcb.dataset.built){mcb.dataset.built='1';mcb.innerHTML=Object.entries(MEDIA_CFG).map(([mk,cfg])=>`<tr><td style="font-weight:700">${mk}</td><td><span class="ng-toggle"><button class="ng-btn ${cfg.basis==='net'?'on':''}" onclick="MEDIA_CFG['${mk}'].basis='net';this.classList.add('on');this.nextElementSibling.classList.remove('on')">Net</button><button class="ng-btn ${cfg.basis==='gross'?'on':''}" onclick="MEDIA_CFG['${mk}'].basis='gross';this.classList.add('on');this.previousElementSibling.classList.remove('on')">Gross</button></span></td><td><input type="number" step="0.01" min="0" max="1" value="${cfg.netRatio}" style="width:80px;padding:3px 6px;border:1px solid var(--b);border-radius:4px;font-size:13px" onchange="MEDIA_CFG['${mk}'].netRatio=+this.value"></td><td><span class="ng-toggle"><button class="ng-btn ${cfg.teamTarget?'on':''}" onclick="MEDIA_CFG['${mk}'].teamTarget=true;this.classList.add('on');this.nextElementSibling.classList.remove('on')">허용</button><button class="ng-btn ${!cfg.teamTarget?'on':''}" onclick="MEDIA_CFG['${mk}'].teamTarget=false;this.classList.add('on');this.previousElementSibling.classList.remove('on')">불허</button></span></td><td style="font-size:12.5px;color:var(--t3)">${cfg.basis==='net'?'Net 기준':'Gross 기준'}</td></tr>`).join('');}
+}
+function addUser(){alert('사용자 추가는 관리자에게 문의');}
+function saveHeadcount(){alert('인원 설정 저장 완료');}
+function saveMargins(){alert('수익율 설정 저장 완료');}
+function saveMediaCfg(){alert('매체 설정 저장 완료');}
+function downloadTemplate(t){const h={target:'연도,본부,실,팀,1월목표,...',promo:'매체,기간,목표,기준',confirmed:'팀,광고주,매체,취급고,시작,종료'};const b=new Blob([(h[t]||'')+'\n'],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='template_'+t+'.csv';a.click();}
+function addPromoRow(){const tb=document.getElementById('tb-promo-body');if(!tb)return;const tr=document.createElement('tr');tr.innerHTML=`<td><input style="width:80px;padding:3px;border:1px solid var(--b);border-radius:3px;font-size:12.5px" placeholder="매체명"></td><td><input style="width:100px;padding:3px;border:1px solid var(--b);border-radius:3px;font-size:12.5px" placeholder="기간"></td><td><input style="padding:3px;border:1px solid var(--b);border-radius:3px;font-size:12.5px" placeholder="프로모션명"></td><td><span class="ng-toggle"><button class="ng-btn on">Net</button><button class="ng-btn">Gross</button></span></td><td class="r"><input type="number" style="width:70px;padding:3px;border:1px solid var(--b);border-radius:3px;font-size:12.5px;text-align:right" placeholder="0">억</td><td><span class="ch gr">없음</span></td><td><span class="ch gr">0%</span></td><td><button class="btn xs" onclick="this.closest('tr').remove()">삭제</button></td>`;tb.appendChild(tr);}
+function connectSheet(t){alert(t+' 시트 연결 완료 (시뮬레이션)');}
+function connectWeeklySheet(){const u=document.getElementById('url-weekly-sheet')?.value;const s=document.getElementById('st-weekly-connect');if(!s)return;if(!u||!u.includes('docs.google.com')){s.innerHTML='<div class="al e">유효한 URL을 입력하세요.</div>';return;}s.innerHTML='<div class="al i">⏳ 연결 중...</div>';setTimeout(()=>{s.innerHTML='<div class="al s">✓ 연결 완료</div>';},1500);}
+function handleWeeklyUpload(inp){const f=inp.files[0];if(!f)return;const s=document.getElementById('st-weekly-upload');if(s)s.innerHTML=`<div class="al s">✓ "${f.name}" 업로드 완료</div>`;}
+function handleDataUpload(inp,type){const f=inp.files[0];if(!f)return;const msgs={perf:'실적',weekly:'주간회의록',target:'목표',promo:'프로모션',contact:'컨택리포트',org:'조직도'};alert(`✓ "${f.name}" ${msgs[type]||type} 업로드 완료 (실제 파싱은 서버 연동 필요)`);}
+function addWeeklyRow(){const tb=document.getElementById('weekly-manual-rows');if(!tb)return;const tr=document.createElement('tr');tr.innerHTML=`<td><select style="font-size:12.5px;padding:2px"><option>확정</option><option>제안</option></select></td><td><input style="width:80px;padding:2px 4px;border:1px solid var(--b);border-radius:3px;font-size:12.5px" placeholder="팀명"></td><td><input style="width:80px;padding:2px 4px;border:1px solid var(--b);border-radius:3px;font-size:12.5px" placeholder="광고주"></td><td><input style="width:60px;padding:2px 4px;border:1px solid var(--b);border-radius:3px;font-size:12.5px" placeholder="대행사"></td><td><input style="width:60px;padding:2px 4px;border:1px solid var(--b);border-radius:3px;font-size:12.5px" placeholder="매체"></td><td><input type="number" style="width:90px;padding:2px 4px;border:1px solid var(--b);border-radius:3px;font-size:12.5px" placeholder="취급고"></td><td><input type="number" style="width:70px;padding:2px 4px;border:1px solid var(--b);border-radius:3px;font-size:12.5px" placeholder="매출"></td><td><input type="date" style="padding:2px 4px;border:1px solid var(--b);border-radius:3px;font-size:12.5px"></td><td><input type="date" style="padding:2px 4px;border:1px solid var(--b);border-radius:3px;font-size:12.5px"></td><td><button class="btn xs" onclick="this.closest('tr').remove()">삭제</button></td>`;tb.appendChild(tr);}
+function saveWeeklyData(){alert('주간 데이터 저장 완료');}
+function calcProration(){
+  const amount=parseFloat(document.getElementById('prorate-amount')?.value)||0;
+  const start=new Date(document.getElementById('prorate-start')?.value);
+  const end=new Date(document.getElementById('prorate-end')?.value);
+  const el=document.getElementById('prorate-result');
+  if(!amount||isNaN(start.getTime())||isNaN(end.getTime())||!el){if(el)el.innerHTML='<div class="al e">금액, 날짜를 모두 입력하세요.</div>';return;}
+  const totalDays=Math.round((end-start)/86400000)+1;
+  if(totalDays<1){el.innerHTML='<div class="al e">종료일이 시작일보다 이후여야 합니다.</div>';return;}
+  const monthly={};let cur=new Date(start);
+  while(cur<=end){const k=`${cur.getFullYear()}-${String(cur.getMonth()+1).padStart(2,'0')}`;monthly[k]=(monthly[k]||0)+amount/totalDays;cur.setDate(cur.getDate()+1);}
+  el.innerHTML=`<div class="al s">✓ 총 ${totalDays}일 · ${Object.keys(monthly).length}개월 분할</div>
+  <div class="tw"><table class="t"><thead><tr><th>귀속월</th><th class="r">금액(억)</th><th class="r">비중</th><th class="r">원단위</th></tr></thead><tbody>
+  ${Object.entries(monthly).map(([k,v])=>`<tr><td>${k}</td><td class="r hl">${(v/W).toFixed(3)}억</td><td class="r tnum">${(v/amount*100).toFixed(1)}%</td><td class="r tnum">${Math.round(v).toLocaleString()}원</td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+function openTeamTargetModal(media){const modal=document.getElementById('team-target-modal');if(!modal)return;document.getElementById('team-target-title').textContent=media+' 팀별 목표 설정';const teams=['광고1본부-1실','광고1본부-2실','광고1본부-3실','광고2본부-5실','광고2본부-6실','광고3본부-모바일마케팅실'];document.getElementById('team-target-body').innerHTML=`<div class="al i">팀별 합계 ≤ 전사 목표로 입력하세요.</div><table class="t" style="margin-bottom:12px"><thead><tr><th>조직</th><th class="r">연간</th><th class="r">Q1</th><th class="r">1월</th></tr></thead><tbody>${teams.map(t=>`<tr><td>${t}</td><td class="r"><input type="number" placeholder="0" style="width:70px;padding:3px;border:1px solid var(--b);border-radius:4px;font-size:12.5px">억</td><td class="r"><input type="number" placeholder="0" style="width:60px;padding:3px;border:1px solid var(--b);border-radius:4px;font-size:12.5px">억</td><td class="r"><input type="number" placeholder="0" style="width:60px;padding:3px;border:1px solid var(--b);border-radius:4px;font-size:12.5px">억</td></tr>`).join('')}</tbody></table><div style="display:flex;gap:8px"><button class="btn p" onclick="document.getElementById('team-target-modal').style.display='none';alert('저장 완료')">저장</button><button class="btn s sm" onclick="document.getElementById('team-target-modal').style.display='none'">취소</button></div>`;modal.style.display='flex';}
+function openVerify(){const total25=D.mt.reduce((s,v)=>s+v,0);const bmSum=Object.values(D.bm).reduce((s,arr)=>s+arr.reduce((a,v)=>a+v,0),0);const diff=Math.abs(total25-bmSum)/total25*100;const md25Sum=Object.values(D.md).reduce((s,v)=>s+v.d25,0);const dec25=D.mt[11];alert(`데이터 검증 결과:\n✓ 전사 연간 합계: ${(total25/W).toFixed(1)}억\n✓ 본부별 합계: ${(bmSum/W).toFixed(1)}억\n✓ 차이: ${diff.toFixed(2)}% ${diff<0.01?'(정확)':'(확인필요)'}\n✓ 주요 매체합계(12월): ${(md25Sum/W).toFixed(1)}억\n✓ 12월 전사 실적: ${(dec25/W).toFixed(1)}억\n✓ 매체 커버리지: ${(md25Sum/dec25*100).toFixed(1)}%`);}
+// ═══ CHAT ════════════════════════════════════════════════════════
+function addMsg(txt,cls){const d=document.createElement('div');d.className=`cm ${cls}`;d.innerHTML=txt+`<div class="cm-t">${new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}</div>`;const m=document.getElementById('chat-msgs');if(m){m.appendChild(d);m.scrollTop=m.scrollHeight;}return d;}
+function hintQ(q){const inp=document.getElementById('chat-inp');if(inp){inp.value=q;sendChat();}}
+function sendChat(){
+  const inp=document.getElementById('chat-inp');if(!inp)return;const msg=inp.value.trim();if(!msg)return;
+  addMsg(msg,'u');inp.value='';const thinking=addMsg('분석 중...','b');
+  setTimeout(()=>{
+    const tp=getTotalPerf();const scale=D.mt[11]>0?sliceSum(D.mt)/D.mt[11]:1;
+    let reply=`<strong>${periodStr()} 분석 결과:</strong><br>전사 취급고 ${fmtB1(tp.cur)}, 전년대비 ${yoyBadge(tp.cur,tp.prev)}, 목표달성 ${tp.achievement?(tp.achievement*100).toFixed(1)+'%':'–'}, 매출추정 ${fmtB1(tp.cur*MARGINS['전사'])} (수익율 ${(MARGINS['전사']*100).toFixed(1)}%).`;
+    if(msg.includes('Google')||msg.includes('구글'))reply+=`<br><br>Google: ${fmtB1(getMedScaled('Google').cur)} (전체의 ${sliceSum(D.mt)>0?(getMedScaled('Google').cur/sliceSum(D.mt)*100).toFixed(1):0}%) ${yoyBadge(getMedScaled('Google').cur,getMedScaled('Google').prev)}`;
+    if(msg.includes('넥슨'))reply+=`<br><br>넥슨: ${fmtB1(D.ad['넥슨']?.d25*scale||0)} 1위 광고주.`;
+    if(msg.includes('본부'))reply+=`<br><br>${Object.keys(D.bm).map(bk=>`${bk}: ${fmtB1(getBonbuPerf(bk).cur)}`).join(' | ')}`;
+    thinking.innerHTML=reply+`<div class="cm-t">${new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}</div>`;
+  },1000);
+}
+// ═══ SIDEBAR MEDIA SETUP ══════════════════════════════════════════
+function setupSalesMediaSidebar(){
+  const sub=document.getElementById('sub-sales-media-detail');if(!sub)return;
+  const top20=Object.entries(D.md).sort((a,b)=>b[1].d25-a[1].d25).slice(0,20);
+  sub.innerHTML=top20.map(([mk])=>{const slug=mk.replace(/[^a-zA-Z0-9가-힣]/g,'_');return`<div class="sni" onclick="goto('sales-med-${slug}',this)"><div class="dot"></div>${mk}</div>`;}).join('');
+  sub.classList.add('open');
+  // Also open the parent nav item
+  const parentNi=sub.previousElementSibling;if(parentNi)parentNi.classList.add('open');
+}
+// ═══ STUBS ════════════════════════════════════════════════════════
+function addManualRow(){addWeeklyRow();}
+function clearManualRows(){const tb=document.getElementById('weekly-manual-rows');if(tb)tb.innerHTML='';}
+function saveManualData(){saveWeeklyData();}
+function saveMappings(){alert('매핑 저장 완료');}
+function refreshSalesData(){alert('데이터 새로고침 완료');}
+function refreshWeekly(){alert('주간 데이터 새로고침 완료');}
+function connectGSheet(t){connectSheet(t);}
+function sortAdv(){}function sortAg(){}function sortMonthly(){}function sortOrgAll(){}function switchWView(){}
+// ═══ INIT ════════════════════════════════════════════════════════
+function initAll(){
+  updatePeriodInfo();
+  setupSalesMediaSidebar();
+  // Set default period UI
+  const ms=document.getElementById('month-sel');if(ms)ms.value=P.month;
+  document.querySelectorAll('#qtr-sel .psel').forEach((b,i)=>{b.classList.toggle('on',i===P.qtr);});
+  document.querySelectorAll('#year-sel .psel').forEach((b)=>{b.classList.toggle('on',parseInt(b.textContent)===P.year);});
+  goto('summary',document.getElementById('ni-summary'));
+}
+
+
+// ═══ BOOT ════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function() {
+  // Login page is shown by default (app is display:none)
+  // User must log in to access the app
+  const li = document.getElementById('li-email');
+  if(li) li.focus();
+  // Allow Enter key on login
+  ['li-email','li-pw'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('keydown', e => { if(e.key === 'Enter') doLogin(); });
+  });
+});
+</script>
+</body>
+</html>
